@@ -1,65 +1,88 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
-export default function Home() {
+const tools = [
+  {
+    title: 'Consolidador de Excel',
+    description: 'Deja de copiar y pegar. Une múltiples archivos y hojas en un solo Excel maestro en segundos.',
+    href: '/consolidar-excel',
+    icon: '📊',
+    status: 'Listo',
+    color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+  },
+  {
+    title: 'Formateador JSON',
+    description: 'Limpia, valida y ordena tus objetos JSON para que sean legibles por humanos.',
+    href: '/validar-json',
+    icon: 'wc',
+    status: 'Próximamente',
+    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+  },
+  {
+    title: 'Generador de Passwords',
+    description: 'Crea contraseñas imposibles de hackear y mantén tus cuentas seguras.',
+    href: '/generador-contrasenas',
+    icon: 'wc',
+    status: 'Próximamente',
+    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-background transition-colors duration-300">
+      {/* Hero Section */}
+      <div className="bg-card border-b border-border transition-colors duration-300">
+        <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex justify-end mb-8">
+            <ThemeSwitcher />
+          </div>
+          <div className="text-center pb-12">
+            <h1 className="text-4xl font-extrabold text-foreground sm:text-5xl tracking-tight">
+              La Caja de Herramientas <span className="text-primary">Digital</span>
+            </h1>
+            <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+              Utilidades simples para problemas complejos. Sin registros, sin publicidad, 100% gratis.
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {/* Grid de Herramientas */}
+      <div className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {tools.map((tool) => (
+            <Link href={tool.href} key={tool.title} className="group">
+              <div className="relative h-full bg-card rounded-2xl shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary">
+
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-4xl">{tool.icon}</span>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${tool.color}`}>
+                    {tool.status}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                  {tool.title}
+                </h3>
+
+                <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
+                  {tool.description}
+                </p>
+
+                <div className="mt-4 flex items-center text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Ir a la herramienta &rarr;
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
-      </main>
-    </div>
+      </div>
+
+      {/* Footer Simple */}
+      <footer className="text-center py-8 text-muted-foreground text-sm">
+        &copy; {new Date().getFullYear()} Marcelo - Arquitecto de Soluciones
+      </footer>
+    </main>
   );
 }
