@@ -13,9 +13,9 @@ const tools = [
   {
     title: 'Formateador JSON',
     description: 'Limpia, valida y ordena tus objetos JSON para que sean legibles por humanos.',
-    href: '/validar-json',
+    href: '/json-formatter',
     icon: 'wc',
-    status: 'Próximamente',
+    status: 'Listo',
     color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
   },
   {
