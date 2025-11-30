@@ -23,8 +23,24 @@ const tools = [
     description: 'Crea contraseñas imposibles de hackear y mantén tus cuentas seguras.',
     href: '/generador-contrasenas',
     icon: 'wc',
-    status: 'Próximamente',
+    status: 'Listo',
     color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+  },
+  {
+    title: 'Caja Rápida',
+    description: 'Punto de venta minimalista y offline para tu negocio. Controla ventas y caja diaria.',
+    href: '/caja-rapida',
+    icon: '🏪',
+    status: 'Nuevo',
+    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
+  },
+  {
+    title: 'Herramientas de Texto',
+    description: 'Formatea, limpia y extrae datos de tus textos. Mayúsculas, emails, espacios y más.',
+    href: '/texto',
+    icon: '📝',
+    status: 'Listo',
+    color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-100'
   },
 ];
 

@@ -146,60 +146,110 @@ export default function PasswordGeneratorPage() {
             </button>
           </div>
 
-          {/* Controls */}
-          <div className="space-y-6">
+          {/* Controls Section */}
+          <div className="space-y-8 bg-muted/30 p-6 rounded-xl border border-border/50">
+
+            {/* Length Control */}
             <div>
-              <div className="flex justify-between mb-2">
-                <label className="font-medium text-muted-foreground">Longitud</label>
-                <span className="font-mono font-bold text-lg">{length}</span>
+              <div className="flex justify-between items-center mb-4">
+                <label htmlFor="length-slider" className="font-bold text-lg flex items-center gap-2">
+                  <span className="bg-primary/10 text-primary p-1.5 rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 16h5v5" /></svg>
+                  </span>
+                  Longitud de la contraseña
+                </label>
+                <span className="font-mono font-bold text-2xl text-primary bg-background px-4 py-1 rounded-lg border border-border shadow-sm">
+                  {length}
+                </span>
               </div>
-              <input
-                type="range"
-                min="8"
-                max="64"
-                value={length}
-                onChange={(e) => setLength(Number(e.target.value))}
-                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-              />
+
+              <div className="relative flex items-center h-8">
+                <input
+                  id="length-slider"
+                  type="range"
+                  min="8"
+                  max="64"
+                  value={length}
+                  onChange={(e) => setLength(Number(e.target.value))}
+                  className="w-full h-3 bg-muted rounded-full appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground mt-1 px-1">
+                <span>8 (Mínimo)</span>
+                <span>64 (Máximo)</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <label className="flex items-center gap-3 p-4 rounded-xl border border-border cursor-pointer hover:bg-muted/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={options.uppercase}
-                  onChange={() => toggleOption('uppercase')}
-                  className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <span className="font-medium">ABC Mayúsculas</span>
-              </label>
-              <label className="flex items-center gap-3 p-4 rounded-xl border border-border cursor-pointer hover:bg-muted/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={options.lowercase}
-                  onChange={() => toggleOption('lowercase')}
-                  className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <span className="font-medium">abc Minúsculas</span>
-              </label>
-              <label className="flex items-center gap-3 p-4 rounded-xl border border-border cursor-pointer hover:bg-muted/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={options.numbers}
-                  onChange={() => toggleOption('numbers')}
-                  className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <span className="font-medium">123 Números</span>
-              </label>
-              <label className="flex items-center gap-3 p-4 rounded-xl border border-border cursor-pointer hover:bg-muted/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={options.symbols}
-                  onChange={() => toggleOption('symbols')}
-                  className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <span className="font-medium">!@# Símbolos</span>
-              </label>
+            <div className="h-px bg-border/50" />
+
+            {/* Character Options */}
+            <div>
+              <label className="font-bold text-lg mb-4 block">Caracteres a incluir</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${options.uppercase ? 'bg-primary/5 border-primary shadow-sm' : 'bg-card border-border hover:border-primary/50'}`}>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center border transition-colors ${options.uppercase ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground'}`}>
+                    {options.uppercase && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={options.uppercase}
+                    onChange={() => toggleOption('uppercase')}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-bold">ABC</span>
+                    <span className="text-xs text-muted-foreground">Mayúsculas</span>
+                  </div>
+                </label>
+
+                <label className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${options.lowercase ? 'bg-primary/5 border-primary shadow-sm' : 'bg-card border-border hover:border-primary/50'}`}>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center border transition-colors ${options.lowercase ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground'}`}>
+                    {options.lowercase && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={options.lowercase}
+                    onChange={() => toggleOption('lowercase')}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-bold">abc</span>
+                    <span className="text-xs text-muted-foreground">Minúsculas</span>
+                  </div>
+                </label>
+
+                <label className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${options.numbers ? 'bg-primary/5 border-primary shadow-sm' : 'bg-card border-border hover:border-primary/50'}`}>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center border transition-colors ${options.numbers ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground'}`}>
+                    {options.numbers && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={options.numbers}
+                    onChange={() => toggleOption('numbers')}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-bold">123</span>
+                    <span className="text-xs text-muted-foreground">Números</span>
+                  </div>
+                </label>
+
+                <label className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${options.symbols ? 'bg-primary/5 border-primary shadow-sm' : 'bg-card border-border hover:border-primary/50'}`}>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center border transition-colors ${options.symbols ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground'}`}>
+                    {options.symbols && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={options.symbols}
+                    onChange={() => toggleOption('symbols')}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-bold">!@#</span>
+                    <span className="text-xs text-muted-foreground">Símbolos</span>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
 
