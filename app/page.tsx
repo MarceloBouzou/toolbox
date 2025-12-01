@@ -11,10 +11,10 @@ const tools = [
     color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
   },
   {
-    title: 'Formateador JSON',
-    description: 'Limpia, valida y ordena tus objetos JSON para que sean legibles por humanos.',
+    title: 'Formateador y Conversor JSON/CSV',
+    description: 'Formatea, valida JSON y convierte entre CSV y JSON en ambas direcciones.',
     href: '/json-formatter',
-    icon: 'wc',
+    icon: '💻',
     status: 'Listo',
     color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
   },
@@ -22,17 +22,9 @@ const tools = [
     title: 'Generador de Passwords',
     description: 'Crea contraseñas imposibles de hackear y mantén tus cuentas seguras.',
     href: '/generador-contrasenas',
-    icon: 'wc',
+    icon: '🔐',
     status: 'Listo',
     color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
-  },
-  {
-    title: 'Caja Rápida',
-    description: 'Punto de venta minimalista y offline para tu negocio. Controla ventas y caja diaria.',
-    href: '/caja-rapida',
-    icon: '🏪',
-    status: 'Nuevo',
-    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
   },
   {
     title: 'Herramientas de Texto',
