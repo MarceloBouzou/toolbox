@@ -38,6 +38,14 @@ const tools = [
     status: 'Listo',
     color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-100'
   },
+  {
+    title: 'Caja Rápida (POS)',
+    description: 'Sistema de punto de venta simple. Registra ventas rápidas, calcula vueltos y mantén el control de tu caja diaria.',
+    href: '/caja-rapida',
+    icon: '🛒',
+    status: 'Nuevo',
+    color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100'
+  },
 ];
 
 export default function HomePage() {

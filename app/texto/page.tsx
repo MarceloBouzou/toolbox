@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { ShareButton } from '@/components/ShareButton';
+import { VisitCounter } from '@/components/VisitCounter';
 import { Copy, Trash2, Wand2, Scissors, Mail, Link as LinkIcon, Hash } from 'lucide-react';
 
 export default function TextToolsPage() {
@@ -82,6 +83,9 @@ Código de error: 404. Precio: $99.`);
                 <div className="absolute top-4 right-4 z-50">
                     <ShareButton />
                 </div>
+            </div>
+            <div className="-mt-4 mb-4">
+                <VisitCounter pageKey="text_tools" />
             </div>
 
             <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-4rem)]">

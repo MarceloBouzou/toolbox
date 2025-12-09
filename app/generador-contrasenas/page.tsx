@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ShareButton } from '@/components/ShareButton';
+import { VisitCounter } from '@/components/VisitCounter';
 
 export default function PasswordGeneratorPage() {
   const [password, setPassword] = useState('');
@@ -99,6 +100,9 @@ export default function PasswordGeneratorPage() {
             <ShareButton />
             <ThemeSwitcher />
           </div>
+        </div>
+        <div className="flex justify-center pb-2">
+          <VisitCounter pageKey="password_generator" />
         </div>
       </header>
 

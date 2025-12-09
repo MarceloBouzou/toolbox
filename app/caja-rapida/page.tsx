@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
+import { ShareButton } from '@/components/ShareButton';
+import { VisitCounter } from '@/components/VisitCounter';
 import { Cart, CartItem } from '@/components/caja-rapida/Cart';
 import { ProductPad, Product } from '@/components/caja-rapida/ProductPad';
 import { TransactionSummary } from '@/components/caja-rapida/TransactionSummary';
@@ -88,7 +90,13 @@ export default function CajaRapidaPage() {
                 <span className="text-sm font-mono bg-muted px-2 py-1 rounded hidden sm:inline-block">
                     Turno: {new Date().toLocaleDateString()}
                 </span>
+                <div className="ml-2">
+                    <ShareButton />
+                </div>
             </Header>
+            <div className="flex justify-center pb-2 bg-background border-b border-border/50">
+                <VisitCounter pageKey="caja_rapida" />
+            </div>
 
             <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden h-[calc(100vh-4rem)]">
 

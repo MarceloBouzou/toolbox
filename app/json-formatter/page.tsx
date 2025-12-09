@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ShareButton } from '@/components/ShareButton';
+import { VisitCounter } from '@/components/VisitCounter';
 
 type Mode = 'format' | 'csv-to-json' | 'json-to-csv';
 type Delimiter = ',' | ';' | '\t' | '|';
@@ -12,20 +13,39 @@ export default function JsonFormatterPage() {
     const [mode, setMode] = useState<Mode>('format');
 
     // Format JSON mode state
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState('{"id":1,"proyecto":"Caja Digital","estado":"Activo","metricas":{"visitas":1500,"tiempo_medio":"2m"},"tags":["dev","tools","nextjs"]}');
     const [output, setOutput] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
 
     // CSV to JSON mode state
-    const [csvInput, setCsvInput] = useState('');
+    const [csvInput, setCsvInput] = useState(`ID,Nombre,Rol,Ciudad
+101,Marcelo,Arquitecto,Buenos Aires
+102,Ana,Desarrolladora,Madrid
+103,Carlos,Analista,Bogotá`);
     const [csvDelimiter, setCsvDelimiter] = useState<Delimiter>(',');
     const [csvHasHeaders, setCsvHasHeaders] = useState(true);
     const [csvOutput, setCsvOutput] = useState('');
     const [csvError, setCsvError] = useState<string | null>(null);
 
     // JSON to CSV mode state
-    const [jsonInput, setJsonInput] = useState('');
+    const [jsonInput, setJsonInput] = useState(`[
+  {
+    "Producto": "Laptop Gamer",
+    "Precio": 1500,
+    "Stock": true
+  },
+  {
+    "Producto": "Mouse Inalámbrico",
+    "Precio": 25,
+    "Stock": false
+  },
+  {
+    "Producto": "Monitor 4K",
+    "Precio": 300,
+    "Stock": true
+  }
+]`);
     const [csvOutputDelimiter, setCsvOutputDelimiter] = useState<Delimiter>(',');
     const [csvIncludeHeaders, setCsvIncludeHeaders] = useState(true);
     const [csvResult, setCsvResult] = useState('');
@@ -234,10 +254,13 @@ export default function JsonFormatterPage() {
                             <p className="text-xs text-muted-foreground">Valida, formatea y convierte estructuras de datos entre JSON y CSV.</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         <ShareButton />
                         <ThemeSwitcher />
                     </div>
+                </div>
+                <div className="flex justify-center pb-2">
+                    <VisitCounter pageKey="json_formatter" />
                 </div>
             </header>
 

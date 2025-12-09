@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ShareButton } from '@/components/ShareButton';
+import { VisitCounter } from '@/components/VisitCounter';
 
 type ConsolidationMode = 'multiple-files' | 'multiple-sheets';
 
@@ -151,6 +152,9 @@ export default function ConsolidarExcelPage() {
             <ShareButton />
             <ThemeSwitcher />
           </div>
+        </div>
+        <div className="mb-4">
+          <VisitCounter pageKey="excel_consolidator" />
         </div>
 
         <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border">

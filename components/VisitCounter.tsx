@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
-export function VisitCounter() {
+export function VisitCounter({ pageKey }: { pageKey?: string }) {
     const [count, setCount] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Namespace specific to this app to avoid collisions
         const namespace = 'toolbox-marcelo-app';
-        const key = 'visits';
+        const key = pageKey ? `visits_${pageKey}` : 'visits';
 
         const fetchCount = async () => {
             try {
@@ -20,9 +20,10 @@ export function VisitCounter() {
                     const data = await upRes.json();
                     setCount(data.count);
                 } else {
-                    // If it fails (maybe first time), try to get info or create
-                    // For this simple API, usually just hitting up works if namespace exists or is auto-created.
-                    // If it fails, we might just show nothing or retry with a get
+                    // If it fails (maybe first time or key missing), try to create/get
+                    // For counterapi, usually hitting up creates it if namespace exists.
+                    // If it failed, it might mean namespace issue or key issue.
+                    // Let's try to get info just in case
                     const getRes = await fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/`);
                     if (getRes.ok) {
                         const data = await getRes.json();
@@ -37,7 +38,7 @@ export function VisitCounter() {
         };
 
         fetchCount();
-    }, []);
+    }, [pageKey]);
 
     if (loading || count === null) return null;
 
