@@ -39,12 +39,12 @@ const tools = [
     color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-100'
   },
   {
-    title: 'Caja Rápida (POS)',
-    description: 'Sistema de punto de venta simple. Registra ventas rápidas, calcula vueltos y mantén el control de tu caja diaria.',
-    href: '/caja-rapida',
-    icon: '🛒',
+    title: 'Conversor de Imágenes',
+    description: 'Transforma tus imágenes a JPG, PNG o WEBP al instante. Conversión local, rápida y sin subir nada a la nube.',
+    href: '/conversor-imagenes',
+    icon: '🖼️',
     status: 'Nuevo',
-    color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100'
+    color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-100'
   },
 ];
 
