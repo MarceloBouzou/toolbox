@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ShareButton } from '@/components/ShareButton';
 
 type Mode = 'format' | 'csv-to-json' | 'json-to-csv';
 type Delimiter = ',' | ';' | '\t' | '|';
@@ -223,14 +224,20 @@ export default function JsonFormatterPage() {
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
             {/* Header */}
             <header className="border-b border-border bg-card">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
                             &larr; Volver
                         </Link>
-                        <h1 className="text-xl font-bold">Formateador y Conversor JSON/CSV</h1>
+                        <div>
+                            <h1 className="text-xl font-bold">Transformador de Datos</h1>
+                            <p className="text-xs text-muted-foreground">Valida, formatea y convierte estructuras de datos entre JSON y CSV.</p>
+                        </div>
                     </div>
-                    <ThemeSwitcher />
+                    <div className="flex items-center gap-2">
+                        <ShareButton />
+                        <ThemeSwitcher />
+                    </div>
                 </div>
             </header>
 
@@ -241,8 +248,8 @@ export default function JsonFormatterPage() {
                         <button
                             onClick={() => setMode('format')}
                             className={`px-6 py-4 text-sm font-semibold transition-all ${mode === 'format'
-                                    ? 'bg-card text-primary border-b-2 border-primary'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                ? 'bg-card text-primary border-b-2 border-primary'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                 }`}
                         >
                             📝 Formatear JSON
@@ -250,8 +257,8 @@ export default function JsonFormatterPage() {
                         <button
                             onClick={() => setMode('csv-to-json')}
                             className={`px-6 py-4 text-sm font-semibold transition-all ${mode === 'csv-to-json'
-                                    ? 'bg-card text-primary border-b-2 border-primary'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                ? 'bg-card text-primary border-b-2 border-primary'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                 }`}
                         >
                             📊 CSV → JSON
@@ -259,8 +266,8 @@ export default function JsonFormatterPage() {
                         <button
                             onClick={() => setMode('json-to-csv')}
                             className={`px-6 py-4 text-sm font-semibold transition-all ${mode === 'json-to-csv'
-                                    ? 'bg-card text-primary border-b-2 border-primary'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                ? 'bg-card text-primary border-b-2 border-primary'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                 }`}
                         >
                             📄 JSON → CSV
@@ -290,7 +297,7 @@ export default function JsonFormatterPage() {
                                 id="json-input"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Pega tu JSON aquí..."
+                                placeholder={'{"ejemplo":"Pega tu JSON sucio aquí","estado":"desordenado","numeros":[1,2,3]}'}
                                 className="flex-1 w-full p-4 rounded-xl border border-border bg-card font-mono text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all shadow-sm"
                                 spellCheck={false}
                             />
@@ -388,7 +395,7 @@ export default function JsonFormatterPage() {
                             <textarea
                                 value={csvInput}
                                 onChange={(e) => setCsvInput(e.target.value)}
-                                placeholder="Pega tu CSV aquí...&#10;&#10;Ejemplo:&#10;nombre,edad,ciudad&#10;Juan,25,Madrid&#10;María,30,Barcelona"
+                                placeholder="Nombre,Edad,Ciudad&#10;Marcelo,45,Buenos Aires&#10;Juan,30,Madrid&#10;Ana,28,Bogotá"
                                 className="flex-1 w-full p-4 rounded-xl border border-border bg-card font-mono text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all shadow-sm"
                                 spellCheck={false}
                             />
@@ -489,7 +496,7 @@ export default function JsonFormatterPage() {
                             <textarea
                                 value={jsonInput}
                                 onChange={(e) => setJsonInput(e.target.value)}
-                                placeholder={'Pega tu JSON aquí (debe ser un array de objetos)...\n\nEjemplo:\n[\n  {"nombre":"Juan","edad":25},\n  {"nombre":"María","edad":30}\n]'}
+                                placeholder={'[\n  {\n    "Producto": "Laptop",\n    "Precio": 1500,\n    "Stock": true\n  },\n  {\n    "Producto": "Mouse",\n    "Precio": 20,\n    "Stock": false\n  }\n]'}
                                 className="flex-1 w-full p-4 rounded-xl border border-border bg-card font-mono text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all shadow-sm"
                                 spellCheck={false}
                             />

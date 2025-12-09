@@ -2,23 +2,25 @@
 
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { VisitCounter } from '@/components/VisitCounter';
+import { ShareButton } from '@/components/ShareButton';
 
 const tools = [
   {
-    title: 'Consolidador de Excel',
-    description: 'Deja de copiar y pegar. Une múltiples archivos y hojas en un solo Excel maestro en segundos.',
+    title: 'Unificador de Excel',
+    description: '¿Cansado de copiar y pegar? Fusiona múltiples archivos o pestañas en una sola hoja maestra en segundos. Tu reporte final, listo al instante.',
     href: '/consolidar-excel',
     icon: '📊',
     status: 'Listo',
     color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
   },
   {
-    title: 'Formateador y Conversor JSON/CSV',
-    description: 'Formatea, valida JSON y convierte entre CSV y JSON en ambas direcciones.',
+    title: 'Conversor de Datos (JSON/CSV)',
+    description: 'El puente entre Excel y la Web. Convierte tablas a código (y viceversa) o limpia tus archivos JSON desordenados.',
     href: '/json-formatter',
     icon: '💻',
     status: 'Listo',
-    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+    color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100'
   },
   {
     title: 'Generador de Passwords',
@@ -30,7 +32,7 @@ const tools = [
   },
   {
     title: 'Herramientas de Texto',
-    description: 'Formatea, limpia y extrae datos de tus textos. Mayúsculas, emails, espacios y más.',
+    description: 'Limpia espacios, elimina HTML, ajusta mayúsculas y extrae emails o enlaces de cualquier texto al INSTANTE.',
     href: '/texto',
     icon: '📝',
     status: 'Listo',
@@ -53,7 +55,8 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
 
           {/* Theme Switcher */}
-          <div className="flex justify-end mb-8 animate-fade-in">
+          <div className="flex justify-end mb-8 animate-fade-in gap-2">
+            <ShareButton />
             <ThemeSwitcher />
           </div>
 
@@ -177,6 +180,7 @@ export default function HomePage() {
             <p className="text-xs text-muted-foreground/60">
               &copy; {new Date().getFullYear()} Todos los derechos reservados
             </p>
+            <VisitCounter />
           </div>
         </div>
       </footer>

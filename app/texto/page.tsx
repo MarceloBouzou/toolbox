@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
+import { ShareButton } from '@/components/ShareButton';
 import { Copy, Trash2, Wand2, Scissors, Mail, Link as LinkIcon, Hash } from 'lucide-react';
 
 export default function TextToolsPage() {
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState(`<div>   hOLA!   este  TEXTO   necesita   aYuDa. </div>
+Hay   demasiados    espacios... y etiquetas HTML.
+Contáctanos a soporte@toolbox.com o visita https://miweb.io/app.
+Código de error: 404. Precio: $99.`);
+
     const [output, setOutput] = useState('');
     const [stats, setStats] = useState({ chars: 0, words: 0, lines: 0 });
     const [copied, setCopied] = useState(false);
@@ -72,7 +77,12 @@ export default function TextToolsPage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col">
-            <Header title="Herramientas de Texto" showBack />
+            <div className="relative">
+                <Header title="Herramientas de Texto" showBack />
+                <div className="absolute top-4 right-4 z-50">
+                    <ShareButton />
+                </div>
+            </div>
 
             <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-4rem)]">
 

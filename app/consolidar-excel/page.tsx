@@ -4,6 +4,7 @@ import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ShareButton } from '@/components/ShareButton';
 
 type ConsolidationMode = 'multiple-files' | 'multiple-sheets';
 
@@ -146,14 +147,17 @@ export default function ConsolidarExcelPage() {
           <Link href="/" className="text-muted-foreground hover:text-primary flex items-center text-sm font-medium transition-colors">
             &larr; Volver al inicio
           </Link>
-          <ThemeSwitcher />
+          <div className="flex items-center gap-2">
+            <ShareButton />
+            <ThemeSwitcher />
+          </div>
         </div>
 
         <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border">
 
           {/* Header de la Herramienta */}
           <div className="bg-primary px-8 py-10 text-center text-primary-foreground">
-            <h1 className="text-3xl font-bold">Consolidador de Excel</h1>
+            <h1 className="text-3xl font-bold">Unificador de Excel</h1>
             <p className="mt-2 text-primary-foreground/90 text-lg">
               Unifica múltiples archivos o múltiples hojas en una sola tabla maestra.
             </p>
@@ -165,20 +169,20 @@ export default function ConsolidarExcelPage() {
               <button
                 onClick={() => setMode('multiple-files')}
                 className={`flex-1 px-6 py-4 text-sm font-semibold transition-all ${mode === 'multiple-files'
-                    ? 'bg-card text-primary border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-card text-primary border-b-2 border-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
               >
-                📁 Múltiples Archivos
+                Unir varios Archivos
               </button>
               <button
                 onClick={() => setMode('multiple-sheets')}
                 className={`flex-1 px-6 py-4 text-sm font-semibold transition-all ${mode === 'multiple-sheets'
-                    ? 'bg-card text-primary border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-card text-primary border-b-2 border-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
               >
-                📄 Múltiples Hojas
+                Unir Pestañas (Hojas)
               </button>
             </div>
           </div>
@@ -189,7 +193,7 @@ export default function ConsolidarExcelPage() {
               <>
                 <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>Modo:</strong> Consolida datos de múltiples archivos Excel en una sola hoja. Cada fila incluirá las columnas <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">Fuente_Archivo</code> y <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">Fuente_Hoja</code> al final.
+                    <strong>Modo:</strong> Ideal para juntar reportes sueltos (ej: Enero.xlsx, Febrero.xlsx) en un solo listado. La herramienta creará una tabla única con toda la información. Además, etiquetamos cada fila con el nombre del archivo original para que sepas de dónde vino cada dato.
                   </p>
                 </div>
 
@@ -259,7 +263,7 @@ export default function ConsolidarExcelPage() {
               <>
                 <div className="mb-6 p-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg">
                   <p className="text-sm text-purple-900 dark:text-purple-100">
-                    <strong>Modo:</strong> Consolida todas las hojas de un solo archivo Excel en una sola hoja. Cada fila incluirá la columna <code className="bg-purple-100 dark:bg-purple-900 px-1 rounded">Fuente_Hoja</code> al final.
+                    <strong>Modo:</strong> ¿Tienes un archivo con muchas pestañas? Esta opción toma todas las hojas de tu libro de Excel y las apila una debajo de otra en una única hoja maestra. Perfecto para consolidar datos que vienen separados por categorías o fechas.
                   </p>
                 </div>
 

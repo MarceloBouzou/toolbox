@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ShareButton } from '@/components/ShareButton';
 
 export default function PasswordGeneratorPage() {
   const [password, setPassword] = useState('');
@@ -94,7 +95,10 @@ export default function PasswordGeneratorPage() {
             </Link>
             <h1 className="text-xl font-bold">Generador de Contraseñas</h1>
           </div>
-          <ThemeSwitcher />
+          <div className="flex items-center gap-2">
+            <ShareButton />
+            <ThemeSwitcher />
+          </div>
         </div>
       </header>
 
@@ -109,7 +113,7 @@ export default function PasswordGeneratorPage() {
               </span>
             </div>
             <div className={`h-1.5 w-full mt-2 rounded-full transition-colors duration-300 ${strength === 'weak' ? 'bg-red-500' :
-                strength === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+              strength === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
               }`} />
             <p className="text-center text-sm mt-2 text-muted-foreground font-medium">
               Seguridad: {strength === 'weak' ? 'Débil' : strength === 'medium' ? 'Media' : 'Fuerte'}
@@ -128,8 +132,8 @@ export default function PasswordGeneratorPage() {
             <button
               onClick={handleCopy}
               className={`flex-1 py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2 border-2 ${copied
-                  ? 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-card border-border hover:border-primary hover:text-primary'
+                ? 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-card border-border hover:border-primary hover:text-primary'
                 }`}
             >
               {copied ? (
