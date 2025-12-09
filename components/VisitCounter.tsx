@@ -42,9 +42,6 @@ export function VisitCounter({ pageKey }: { pageKey?: string }) {
 
     if (loading || count === null) return null;
 
-    return (
-        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground/40 mt-4 opacity-50 hover:opacity-100 transition-opacity duration-300">
-            <span className="font-mono"># {count.toLocaleString()}</span>
-        </div>
-    );
+    // Stealth mode: we don't render anything, but the useEffect above still counts the visit.
+    return null;
 }
