@@ -5,9 +5,18 @@ import { useState } from 'react';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { VisitCounter } from '@/components/VisitCounter';
 import { ShareButton } from '@/components/ShareButton';
-import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag } from 'lucide-react';
+import { FeedbackButton } from '@/components/FeedbackButton';
+import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode } from 'lucide-react';
 
 const tools = [
+  {
+    title: 'Generador de QR',
+    description: 'Crea códigos QR para URLs, WiFi o Texto con colores personalizados. Descarga en PNG/SVG.',
+    href: '/generador-qr',
+    icon: <QrCode size={48} className="stroke-1" />,
+    category: 'Datos',
+    color: 'bg-purple-100/50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+  },
   {
     title: 'Unificador de Excel',
     description: '¿Cansado de copiar y pegar? Fusiona múltiples archivos o pestañas en una sola hoja maestra en segundos.',
@@ -25,8 +34,8 @@ const tools = [
     color: 'bg-orange-100/50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
   },
   {
-    title: 'Herramientas PDF',
-    description: 'Une múltiples archivos PDF en uno solo o divide un documento en páginas sueltas. Privado y seguro.',
+    title: 'Kit de Herramientas PDF',
+    description: 'Fusiona reportes, separa páginas o gestiona tus documentos sin subirlos a la nube. Privacidad garantizada.',
     href: '/pdf-tools',
     icon: <FileText size={48} className="stroke-1" />,
     category: 'Documentos',
@@ -136,8 +145,8 @@ export default function HomePage() {
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedCategory === cat
-                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
-                        : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
+                      : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
                   >
                     {cat}
@@ -221,7 +230,10 @@ export default function HomePage() {
             <p className="text-xs text-muted-foreground">
               Arquitecto de Soluciones y Procesos de Negocio
             </p>
-            <VisitCounter />
+            <div className="flex justify-center gap-4 items-center">
+              <VisitCounter />
+              <FeedbackButton />
+            </div>
           </div>
         </div>
       </footer>

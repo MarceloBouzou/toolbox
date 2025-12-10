@@ -5,11 +5,11 @@ import { Header } from '@/components/Header';
 import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
-import { Upload, X, Download, FileText, RefreshCw, Scissors, Layers } from 'lucide-react';
+import { Upload, X, Download, FileText, RefreshCw, Scissors, Layers, RotateCw, Image as ImageIcon } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
 import JSZip from 'jszip';
 
-type Mode = 'merge' | 'split';
+type Mode = 'merge' | 'split' | 'rotate' | 'to-image';
 
 interface PdfFile {
     id: string;
@@ -32,9 +32,9 @@ export default function PdfToolsClient() {
                 name: f.name
             }));
 
-        if (mode === 'split') {
-            // For split mode, we only allow one file at a time effectively for simplicity in this version,
-            // or we replace the current one. Let's replace for split mode.
+        const singleMode = mode === 'split' || mode === 'rotate' || mode === 'to-image';
+
+        if (singleMode) {
             setFiles(pdFiles.slice(0, 1));
         } else {
             // For merge, we append
@@ -61,7 +61,7 @@ export default function PdfToolsClient() {
             }
 
             const pdfBytes = await mergedPdf.save();
-            downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), 'unido.pdf');
+            downloadBlob(new Blob([pdfBytes as any], { type: 'application/pdf' }), 'unido.pdf');
         } catch (error) {
             console.error('Error merging PDFs:', error);
             alert('Hubo un error al unir los PDFs. Asegúrate de que no estén protegidos con contraseña.');
@@ -115,7 +115,7 @@ export default function PdfToolsClient() {
 
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col">
-            <Header title="Herramientas PDF" showBack>
+            <Header title="Kit de Herramientas PDF" showBack>
                 <div className="mr-4">
                     <ShareButton />
                 </div>
@@ -127,10 +127,10 @@ export default function PdfToolsClient() {
             <main className="flex-1 max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
 
                 {/* Tabs */}
-                <div className="flex bg-muted p-1 rounded-xl self-center">
+                <div className="flex flex-wrap gap-2 bg-muted p-1 rounded-xl self-center justify-center">
                     <button
                         onClick={() => { setMode('merge'); setFiles([]); }}
-                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${mode === 'merge'
+                        className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${mode === 'merge'
                             ? 'bg-background shadow-sm text-primary'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
@@ -139,93 +139,128 @@ export default function PdfToolsClient() {
                     </button>
                     <button
                         onClick={() => { setMode('split'); setFiles([]); }}
-                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${mode === 'split'
+                        className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${mode === 'split'
                             ? 'bg-background shadow-sm text-primary'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
                     >
                         <Scissors size={18} /> Dividir PDF
                     </button>
+                    <button
+                        onClick={() => { setMode('rotate'); setFiles([]); }}
+                        className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${mode === 'rotate'
+                            ? 'bg-background shadow-sm text-primary'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        <RotateCw size={18} /> Rotar PDF
+                    </button>
+                    <button
+                        onClick={() => { setMode('to-image'); setFiles([]); }}
+                        className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${mode === 'to-image'
+                            ? 'bg-background shadow-sm text-primary'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        <ImageIcon size={18} /> PDF a Imágenes
+                    </button>
                 </div>
 
                 {/* Info */}
                 <div className="text-center space-y-2 animate-fade-in">
                     <h2 className="text-2xl font-bold">
-                        {mode === 'merge' ? 'Unir Múltiples Archivos PDF' : 'Dividir PDF en Páginas'}
+                        {mode === 'merge' && 'Unir Múltiples Archivos PDF'}
+                        {mode === 'split' && 'Dividir PDF en Páginas'}
+                        {mode === 'rotate' && 'Rotar Páginas PDF'}
+                        {mode === 'to-image' && 'Convertir PDF a Imágenes'}
                     </h2>
                     <p className="text-muted-foreground max-w-lg mx-auto">
-                        {mode === 'merge'
-                            ? 'Ordena tus archivos y únelos en un solo documento. Procesamiento 100% privado en tu navegador.'
-                            : 'Extrae todas las páginas de tu documento PDF en archivos separados. Rápido y seguro.'}
+                        {mode === 'merge' && '¿Tienes reportes sueltos? Combina múltiples archivos en un solo documento maestro ordenado.'}
+                        {mode === 'split' && 'Saca solo las páginas importantes o separa un archivo grande en documentos individuales.'}
+                        {mode === 'rotate' && 'Gira las páginas de tu archivo PDF para que se vean correctamente. (Próximamente)'}
+                        {mode === 'to-image' && 'Convierte páginas de PDF a archivos de imagen JPG o PNG de alta calidad. (Próximamente)'}
                     </p>
                 </div>
 
-                {/* Upload Zone */}
-                {files.length === 0 ? (
-                    <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border-3 border-dashed border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30 rounded-3xl p-12 text-center cursor-pointer transition-all duration-300 group animate-fade-in-up"
-                    >
-                        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <FileText className="text-muted-foreground w-10 h-10" />
+                {/* Upload Zone or Coming Soon */}
+                {(mode === 'rotate' || mode === 'to-image') ? (
+                    <div className="border-3 border-dashed border-muted-foreground/10 rounded-3xl p-12 text-center animate-fade-in bg-muted/20">
+                        <div className="w-20 h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            {mode === 'rotate' ? <RotateCw className="text-muted-foreground w-10 h-10" /> : <ImageIcon className="text-muted-foreground w-10 h-10" />}
                         </div>
-                        <h3 className="text-xl font-bold mb-2">Selecciona tus archivos PDF</h3>
-                        <p className="text-muted-foreground mb-6">Haz clic para buscar en tu dispositivo</p>
-                        <div className="flex justify-center">
-                            <PrivacyBadge />
-                        </div>
+                        <h3 className="text-xl font-bold mb-2">Próximamente</h3>
+                        <p className="text-muted-foreground">Estamos trabajando en esta funcionalidad. ¡Vuelve pronto!</p>
                     </div>
                 ) : (
-                    <div className="space-y-6 animate-fade-in-up">
-                        <div className="space-y-2">
-                            {files.map((file, index) => (
-                                <div key={file.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between shadow-sm animate-fade-in">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-lg flex items-center justify-center">
-                                            <FileText size={20} />
+                    <>
+                        {/* Upload Zone */}
+                        {files.length === 0 ? (
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="border-3 border-dashed border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30 rounded-3xl p-12 text-center cursor-pointer transition-all duration-300 group animate-fade-in-up"
+                            >
+                                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                                    <FileText className="text-muted-foreground w-10 h-10" />
+                                </div>
+                                <h3 className="text-xl font-bold mb-2">Selecciona tus archivos PDF</h3>
+                                <p className="text-muted-foreground mb-6">Haz clic para buscar en tu dispositivo</p>
+                                <div className="flex justify-center">
+                                    <PrivacyBadge />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-6 animate-fade-in-up">
+                                <div className="space-y-2">
+                                    {files.map((file, index) => (
+                                        <div key={file.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between shadow-sm animate-fade-in">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-lg flex items-center justify-center">
+                                                    <FileText size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium truncate max-w-[200px] sm:max-w-md">{file.name}</p>
+                                                    <p className="text-xs text-muted-foreground">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => removeFile(file.id)}
+                                                className="p-2 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-colors"
+                                            >
+                                                <X size={18} />
+                                            </button>
                                         </div>
-                                        <div>
-                                            <p className="font-medium truncate max-w-[200px] sm:max-w-md">{file.name}</p>
-                                            <p className="text-xs text-muted-foreground">{(file.file.size / 1024 / 1024).toFixed(2)} MB</p>
-                                        </div>
-                                    </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-center gap-4">
                                     <button
-                                        onClick={() => removeFile(file.id)}
-                                        className="p-2 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-colors"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="px-6 py-2.5 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-xl font-medium transition-colors flex items-center gap-2"
                                     >
-                                        <X size={18} />
+                                        <Upload size={18} /> {mode === 'merge' ? 'Agregar más' : 'Cambiar archivo'}
+                                    </button>
+                                    <button
+                                        onClick={mode === 'merge' ? mergePdfs : splitPdf}
+                                        disabled={isProcessing}
+                                        className="px-6 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    >
+                                        {isProcessing ? <RefreshCw className="animate-spin" size={18} /> : (mode === 'merge' ? <Layers size={18} /> : <Scissors size={18} />)}
+                                        {isProcessing ? 'Procesando...' : (mode === 'merge' ? 'Unir PDFs' : 'Dividir PDF')}
                                     </button>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        )}
 
-                        <div className="flex justify-center gap-4">
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="px-6 py-2.5 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-xl font-medium transition-colors flex items-center gap-2"
-                            >
-                                <Upload size={18} /> {mode === 'merge' ? 'Agregar más' : 'Cambiar archivo'}
-                            </button>
-                            <button
-                                onClick={mode === 'merge' ? mergePdfs : splitPdf}
-                                disabled={isProcessing}
-                                className="px-6 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                                {isProcessing ? <RefreshCw className="animate-spin" size={18} /> : (mode === 'merge' ? <Layers size={18} /> : <Scissors size={18} />)}
-                                {isProcessing ? 'Procesando...' : (mode === 'merge' ? 'Unir PDFs' : 'Dividir PDF')}
-                            </button>
-                        </div>
-                    </div>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={(e) => e.target.files && handleFiles(Array.from(e.target.files))}
+                            className="hidden"
+                            accept="application/pdf"
+                            multiple={mode === 'merge'}
+                        />
+                    </>
                 )}
-
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => e.target.files && handleFiles(Array.from(e.target.files))}
-                    className="hidden"
-                    accept="application/pdf"
-                    multiple={mode === 'merge'}
-                />
 
             </main>
         </div>
