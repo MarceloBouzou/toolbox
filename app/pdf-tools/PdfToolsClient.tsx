@@ -157,7 +157,6 @@ export default function PdfToolsClient() {
     };
 
 
-    // --- LOGIC: TO IMAGE ---
     const pdfToImages = async () => {
         if (files.length === 0) return;
         setIsProcessing(true);
@@ -166,9 +165,10 @@ export default function PdfToolsClient() {
             const pdfFile = files[0];
             const arrayBuffer = await pdfFile.file.arrayBuffer();
 
-            // Dynamic import to avoid SSR errors
+            // Dynamic import
             const pdfjsLib = await import('pdfjs-dist');
-            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+            // Use local worker to avoid CDN/CORS issues
+            pdfjsLib.GlobalWorkerOptions.workerSrc = window.location.origin + '/pdf.worker.min.mjs';
 
             // Loading document
             const loadingTask = pdfjsLib.getDocument(new Uint8Array(arrayBuffer));
@@ -181,7 +181,7 @@ export default function PdfToolsClient() {
             for (let i = 1; i <= totalPages; i++) {
                 const page = await pdf.getPage(i);
 
-                // Set scale (high quality)
+                // Scale 2.0 = Good quality for viewing
                 const viewport = page.getViewport({ scale: 2.0 });
 
                 const canvas = document.createElement('canvas');
@@ -210,9 +210,10 @@ export default function PdfToolsClient() {
             const content = await zip.generateAsync({ type: "blob" });
             downloadBlob(content, `${pdfFile.name.replace('.pdf', '')}_imagenes.zip`);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error converting PDF to images:', error);
-            alert('Hubo un error al convertir el PDF. Puede que el archivo esté protegido.');
+            // Show the actual error message to the user
+            alert(`Error: ${error.message || error}`);
         } finally {
             setIsProcessing(false);
         }
