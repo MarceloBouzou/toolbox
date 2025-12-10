@@ -20,7 +20,7 @@ export default function QrGeneratorClient() {
     // Labels & Watermark
     const [topLabel, setTopLabel] = useState('');
     const [bottomLabel, setBottomLabel] = useState('');
-    const [showWatermark, setShowWatermark] = useState(true);
+    // const [showWatermark, setShowWatermark] = useState(true); // Always on now
 
     // Wifi specific state
     const [wifiSsid, setWifiSsid] = useState('');
@@ -68,8 +68,11 @@ export default function QrGeneratorClient() {
         // Scale everything relative to qrSize (assuming 256 screen size -> 4x scale)
         const scale = 4;
         const labelHeight = topLabel || bottomLabel ? 60 * scale : 0; // Space for labels
-        const watermarkLineHeight = 35;
-        const watermarkHeight = showWatermark ? (WATERMARK_TEXT.length * watermarkLineHeight) + 40 : 0;
+
+        // Minimalist watermark settings
+        const watermarkFontSize = 14;
+        const watermarkLineHeight = 20;
+        const watermarkHeight = (WATERMARK_TEXT.length * watermarkLineHeight) + 30; // 30px padding above
 
         // Total Text Heights
         let topOffset = padding;
@@ -118,20 +121,19 @@ export default function QrGeneratorClient() {
                     bottomY += 40;
                 }
 
-                // 5. Watermark
-                if (showWatermark) {
-                    bottomY += 40; // Spacing before watermark
-                    ctx.fillStyle = fgColor; // Or a muted color? Let's use fgColor but maybe smaller or distinct
-                    // Only the first line bold?
+                // 5. Watermark (Always On & Minimalist)
+                bottomY += 30; // Spacing before watermark
 
-                    WATERMARK_TEXT.forEach((line, index) => {
-                        ctx.font = index === 0 ? `bold ${24}px sans-serif` : `${22}px sans-serif`;
-                        // ctx.fillStyle = index === 0 ? fgColor : '#666666'; // Canvas doesn't support named gray easily if bgcolor changes. sticking to fgColor/black mix could be tricky if bg is black.
-                        // Let's stick to fgColor for consistency, or calculate contrast. 
-                        // Simple: Use fgColor.
-                        ctx.fillText(line, width / 2, bottomY + (index * watermarkLineHeight));
-                    });
-                }
+                // Use a neutral gray for minimalism, unless bg is dark. 
+                // For simplicity/robustness, let's use fgColor with transparency
+                ctx.fillStyle = fgColor;
+                ctx.globalAlpha = 0.6; // Make it subtle
+
+                WATERMARK_TEXT.forEach((line, index) => {
+                    ctx.font = index === 0 ? `bold ${20}px sans-serif` : `${18}px sans-serif`;
+                    ctx.fillText(line, width / 2, bottomY + (index * watermarkLineHeight));
+                });
+                ctx.globalAlpha = 1.0; // Reset alpha
 
                 // Download
                 const link = document.createElement('a');
@@ -145,14 +147,6 @@ export default function QrGeneratorClient() {
 
     /**
      * For SVG, we just download the QR content. 
-     * Adding text to SVG programmatically is possible but complex for "download a complete poster".
-     * For now, let's keep SVG as just the QR code (pure) or wrapping it. 
-     * Providing a specific "Do you want just the QR or the full card?"
-     * Let's make "SVG" Just the QR (as vectors usually are used for design intake) and "PNG" the "Social Share Card".
-     * OR: We can simulate the text in SVG.
-     * 
-     * Let's stick to: SVG = Just QR (Clean), PNG = Full Card (With Text).
-     * This is standard behavior for generators.
      */
     const downloadSvg = () => {
         const svg = document.getElementById('qr-main-svg');
@@ -364,19 +358,9 @@ export default function QrGeneratorClient() {
                                     maxLength={30}
                                 />
                             </div>
-
-                            <div className="flex items-center gap-3 pt-2">
-                                <input
-                                    type="checkbox"
-                                    id="watermark"
-                                    checked={showWatermark}
-                                    onChange={(e) => setShowWatermark(e.target.checked)}
-                                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label htmlFor="watermark" className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                                    <User size={16} /> Incluir firma de creador
-                                </label>
-                            </div>
+                            <p className="text-xs text-muted-foreground italic flex items-center gap-1">
+                                <User size={12} /> Se incluirá firma del creador automáticamente.
+                            </p>
                         </div>
                     </div>
 
@@ -418,17 +402,16 @@ export default function QrGeneratorClient() {
                                 </p>
                             )}
 
-                            {showWatermark && (
-                                <div className="mt-8 pt-4 border-t border-black/10 text-xs opacity-70 leading-tight space-y-1" style={{ color: fgColor }}>
-                                    {WATERMARK_TEXT.map((line, i) => (
-                                        <p key={i} className={i === 0 ? "font-bold" : ""}>{line}</p>
-                                    ))}
-                                </div>
-                            )}
+                            {/* Minimalist Watermark Always Shown */}
+                            <div className="mt-8 pt-4 border-t border-black/5 text-[10px] opacity-60 leading-tight space-y-0.5 font-sans" style={{ color: fgColor }}>
+                                {WATERMARK_TEXT.map((line, i) => (
+                                    <p key={i} className={i === 0 ? "font-semibold" : ""}>{line}</p>
+                                ))}
+                            </div>
                         </div>
 
                         <p className="text-xs text-muted-foreground mt-4 text-center">
-                            * La descarga PNG incluirá todos los textos y firma. <br />
+                            * La descarga PNG incluirá todos los textos y tu firma. <br />
                             * El SVG contendrá solo el código QR vectorial.
                         </p>
 
