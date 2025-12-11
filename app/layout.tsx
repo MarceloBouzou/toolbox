@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
+import { RetroVumeter } from "@/components/RetroVumeter";
+
 export const metadata: Metadata = {
   title: "La Caja de Herramientas Digital",
   description: "Utilidades online simples y rápidas.",
@@ -17,6 +19,7 @@ export default function RootLayout({
       <body className="antialiased bg-background text-foreground">
         <ThemeProvider>
           {children}
+          <RetroVumeter />
         </ThemeProvider>
       </body>
     </html>

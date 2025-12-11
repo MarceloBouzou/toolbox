@@ -6,7 +6,7 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { VisitCounter } from '@/components/VisitCounter';
 import { ShareButton } from '@/components/ShareButton';
 import { FeedbackButton } from '@/components/FeedbackButton';
-import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode } from 'lucide-react';
+import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode, DollarSign, Dices } from 'lucide-react';
 
 const tools = [
   {
@@ -18,12 +18,28 @@ const tools = [
     color: 'bg-purple-100/50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
   },
   {
+    title: 'Cuentas Claras',
+    description: 'Divide gastos entre amigos para viajes, cenas o juntadas. Calcula quién le debe a quién fácil y rápido.',
+    href: '/gastos-compartidos',
+    icon: <DollarSign size={48} className="stroke-1" />,
+    category: 'Datos',
+    color: 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+  },
+  {
     title: 'Unificador de Excel',
     description: '¿Cansado de copiar y pegar? Fusiona múltiples archivos o pestañas en una sola hoja maestra en segundos.',
     href: '/consolidar-excel',
     icon: <FileSpreadsheet size={48} className="stroke-1" />,
     category: 'Datos',
     color: 'bg-green-100/50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+  },
+  {
+    title: 'Generador de Azar',
+    description: 'Crea números aleatorios por rango o longitud y genera UUIDs/GUIDs para tus bases de datos y testing.',
+    href: '/azar',
+    icon: <Dices size={48} className="stroke-1" />,
+    category: 'Datos',
+    color: 'bg-indigo-100/50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
   },
   {
     title: 'Conversor de Datos',
