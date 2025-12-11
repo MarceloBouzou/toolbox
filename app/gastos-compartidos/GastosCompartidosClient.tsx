@@ -199,57 +199,68 @@ export default function GastosCompartidosClient() {
                 </div>
 
                 {/* Input List */}
-                <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden animate-fade-in-up">
-                    <div className="p-4 bg-muted/30 border-b border-border flex gap-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        <div className="flex-1">Nombre</div>
-                        <div className="w-32 sm:w-40 text-right">Pagó ($)</div>
-                        <div className="w-10"></div>
+                <div className="bg-card border border-border rounded-2xl shadow-sm p-4 sm:p-6 animate-fade-in-up">
+
+                    {/* Headers */}
+                    <div className="flex justify-between text-xs font-bold text-muted-foreground px-4 mb-3 uppercase tracking-wider">
+                        <span>¿Quién?</span>
+                        <span className="pr-12 md:pr-16">¿Cuánto puso?</span>
                     </div>
 
-                    <div className="divide-y divide-border">
+                    <div className="space-y-4">
                         {participants.map((p, index) => (
-                            <div key={p.id} className="flex gap-3 p-3 items-center hover:bg-muted/10 transition-colors">
+                            <div key={p.id} className="flex items-center gap-3 group">
+
+                                {/* Input Nombre */}
                                 <div className="flex-1">
                                     <input
                                         type="text"
                                         placeholder={`Persona ${index + 1}`}
-                                        className="w-full bg-transparent border-none outline-none font-medium placeholder:text-muted-foreground/50"
+                                        className="w-full px-4 py-3 bg-muted/40 border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/40 font-medium"
                                         value={p.name}
                                         onChange={(e) => updateParticipant(p.id, 'name', e.target.value)}
                                         autoFocus={index === participants.length - 1 && participants.length > 2}
                                     />
                                 </div>
-                                <div className="w-32 sm:w-40">
+
+                                {/* Input Monto */}
+                                <div className="relative w-32 sm:w-40">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
                                     <input
                                         type="number"
                                         placeholder="0"
-                                        className="w-full bg-transparent border-none outline-none text-right font-mono"
+                                        className="w-full pl-8 pr-4 py-3 bg-muted/40 border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all font-mono text-right font-medium"
                                         value={p.amount}
                                         onChange={(e) => updateParticipant(p.id, 'amount', e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') addParticipant();
+                                        }}
                                     />
                                 </div>
+
+                                {/* Botón Eliminar */}
                                 <div className="w-10 flex justify-center">
                                     <button
                                         onClick={() => removeParticipant(p.id)}
-                                        className="text-muted-foreground hover:text-destructive p-2 rounded-full hover:bg-destructive/10 transition-colors"
+                                        className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                                         title="Eliminar"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={20} />
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="p-4 bg-muted/30 border-t border-border flex justify-between items-center">
+                    <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
                         <button
                             onClick={addParticipant}
-                            className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-2 px-2 py-1 rounded hover:bg-primary/10 transition-colors"
+                            className="text-sm font-bold text-primary hover:text-primary/80 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors"
                         >
-                            <Plus size={16} /> Agregar Persona
+                            <Plus size={18} /> Agregar Persona
                         </button>
-                        <div className="text-xs text-muted-foreground">
-                            {participants.length} participantes
+                        <div className="text-xs text-muted-foreground font-medium bg-muted px-2 py-1 rounded">
+                            {participants.length} personas
                         </div>
                     </div>
                 </div>
