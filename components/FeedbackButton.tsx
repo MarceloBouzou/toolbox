@@ -6,7 +6,7 @@ import { useState } from 'react';
 export function FeedbackButton() {
     // This is a placeholder URL. In a real scenario, the user would provide their Google Form URL.
     // For now, I will use a generic structure or a placeholder that clearly indicates what to do.
-    const GOOGLE_FORM_URL = "https://docs.google.com/forms/";
+    const GOOGLE_FORM_URL = "https://forms.gle/WXsaX6qooRTtnm7V6";
 
     const handleFeedback = () => {
         window.open(GOOGLE_FORM_URL, '_blank', 'noopener,noreferrer');

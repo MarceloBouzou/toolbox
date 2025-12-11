@@ -241,7 +241,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center space-y-4">
             <p className="text-muted-foreground text-sm">
-              Hecho con <span className="text-red-500 animate-pulse">❤️</span> por <span className="font-semibold text-foreground">Marcelo Bouzou</span>
+              Hecho con <span className="text-red-500 animate-pulse">❤️</span> por <a href="https://www.linkedin.com/in/marcelobouzou/" target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:text-primary transition-colors hover:underline">Marcelo Bouzou</a>
             </p>
             <p className="text-xs text-muted-foreground">
               Arquitecto de Soluciones y Procesos de Negocio

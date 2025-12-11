@@ -159,7 +159,7 @@ export default function GastosCompartidosClient() {
             });
         }
 
-        text += `\n🔗 Calculado con: ${window.location.origin}/gastos-compartidos`;
+        text += `\n🚀 Calculado con Kit Digital (${window.location.host})\n☕ ¿Te sirvió? Colaborá con el dev: marcelobouzou.mp`;
         return text;
     };
 
