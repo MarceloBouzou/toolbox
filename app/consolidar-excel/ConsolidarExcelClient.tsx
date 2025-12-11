@@ -46,6 +46,16 @@ export default function ConsolidarExcelClient() {
             const allData: any[] = [];
 
             for (const file of files) {
+                // Safety: Limit file size to 25MB to prevent browser crash
+                const MAX_SIZE = 25 * 1024 * 1024;
+                if (file.size > MAX_SIZE) {
+                    const confirmLoad = confirm(`El archivo "${file.name}" pesa más de 25MB (${(file.size / 1024 / 1024).toFixed(1)}MB). Procesarlo podría congelar el navegador. ¿Deseas continuar bajo tu propio riesgo?`);
+                    if (!confirmLoad) {
+                        setStatus(`Saltado: ${file.name} (Muy pesado)`);
+                        continue;
+                    }
+                }
+
                 setStatus(`Leyendo: ${file.name}...`);
                 const data = await file.arrayBuffer();
                 const workbook = XLSX.read(data);
@@ -66,7 +76,7 @@ export default function ConsolidarExcelClient() {
             setStatus('Unificando datos y generando Excel...');
 
             if (allData.length === 0) {
-                alert('Los archivos parecen estar vacíos.');
+                alert('No se pudieron extraer datos de los archivos seleccionados.');
                 setIsProcessing(false);
                 return;
             }
@@ -92,6 +102,17 @@ export default function ConsolidarExcelClient() {
         setStatusSheets('Leyendo archivo y sus hojas...');
 
         try {
+            // Safety: Limit file size to 25MB
+            const MAX_SIZE = 25 * 1024 * 1024;
+            if (singleFile.size > MAX_SIZE) {
+                const confirmLoad = confirm(`El archivo pesa ${(singleFile.size / 1024 / 1024).toFixed(1)}MB. Procesarlo podría congelar el navegador. ¿Continuar?`);
+                if (!confirmLoad) {
+                    setIsProcessingSheets(false);
+                    setStatusSheets('');
+                    return;
+                }
+            }
+
             const data = await singleFile.arrayBuffer();
             const workbook = XLSX.read(data);
             const allData: any[] = [];

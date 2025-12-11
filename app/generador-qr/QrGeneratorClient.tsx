@@ -210,7 +210,9 @@ export default function QrGeneratorClient() {
                                     placeholder="https://www.ejemplo.com"
                                     value={value}
                                     onChange={(e) => setValue(e.target.value)}
+                                    maxLength={2000}
                                 />
+                                <p className="text-xs text-muted-foreground text-right">{value.length}/2000</p>
                             </div>
                         )}
 
@@ -222,7 +224,9 @@ export default function QrGeneratorClient() {
                                     placeholder="Escribe algo aquí..."
                                     value={value}
                                     onChange={(e) => setValue(e.target.value)}
+                                    maxLength={2000}
                                 />
+                                <p className="text-xs text-muted-foreground text-right">{value.length}/2000</p>
                             </div>
                         )}
 

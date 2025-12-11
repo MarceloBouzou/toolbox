@@ -36,7 +36,15 @@ export default function PdfToolsClient() {
 
     const handleFiles = (newFiles: File[]) => {
         const pdFiles = newFiles
-            .filter(f => f.type === 'application/pdf')
+            .filter(f => {
+                if (f.type !== 'application/pdf') return false;
+                const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+                if (f.size > MAX_SIZE) {
+                    alert(`El archivo "${f.name}" es demasiado grande (>50MB). Se ha omitido para evitar problemas de memoria.`);
+                    return false;
+                }
+                return true;
+            })
             .map(f => ({
                 id: Math.random().toString(36).substr(2, 9),
                 file: f,
