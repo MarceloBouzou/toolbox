@@ -201,7 +201,7 @@ export default function HomePage() {
                 className="group animate-fade-in-up"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="relative h-full bg-card hover:bg-muted/30 rounded-3xl p-6 transition-all duration-300 border border-border/50 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between">
+                <div className="relative h-full bg-card hover:bg-muted/30 rounded-3xl p-6 transition-all duration-300 border border-border/50 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1 flex flex-col">
 
                   <div>
                     {/* Category Tag */}

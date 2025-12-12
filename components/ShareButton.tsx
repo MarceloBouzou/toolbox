@@ -1,29 +1,16 @@
 "use client";
 
 import { useState } from 'react';
-import { Share2, Copy, Linkedin, Facebook, MessageCircle } from 'lucide-react';
+import { Share2, Copy, Linkedin, Facebook, MessageCircle, Instagram } from 'lucide-react';
 
 export function ShareButton() {
     const [showMenu, setShowMenu] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const handleShare = async () => {
-        const shareData = {
-            title: 'La Caja de Herramientas Digital',
-            text: '¡Mira estas herramientas increíbles!',
-            url: window.location.href,
-        };
-
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch (err) {
-                // If user cancelled or failed, show manual menu
-                setShowMenu(true);
-            }
-        } else {
-            setShowMenu(true);
-        }
+    const handleShare = () => {
+        // En Windows/Desktop la API nativa de compartir es molesta (abre la Store o menús raros).
+        // Forzamos el menú personalizado siempre para una mejor experiencia UX consistente.
+        setShowMenu(true);
     };
 
     const copyToClipboard = () => {
@@ -88,6 +75,18 @@ export function ShareButton() {
                             >
                                 <Facebook size={20} /> Facebook
                             </a>
+
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert('¡Enlace copiado! Instagram no permite compartir directo desde web. Pega el enlace en tu historia o mensaje.');
+                                    window.open('https://instagram.com', '_blank');
+                                    setShowMenu(false);
+                                }}
+                                className="flex items-center gap-3 p-3 bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 rounded-xl transition-colors font-medium w-full text-left"
+                            >
+                                <Instagram size={20} /> Instagram
+                            </button>
 
                             <hr className="border-border my-1" />
 

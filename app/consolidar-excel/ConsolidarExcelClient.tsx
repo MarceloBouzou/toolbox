@@ -7,6 +7,8 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
+import { Trash2, Upload, FileSpreadsheet } from 'lucide-react';
+import { useRef } from 'react';
 
 type ConsolidationMode = 'multiple-files' | 'multiple-sheets';
 
@@ -22,6 +24,9 @@ export default function ConsolidarExcelClient() {
     const [singleFile, setSingleFile] = useState<File | null>(null);
     const [isProcessingSheets, setIsProcessingSheets] = useState(false);
     const [statusSheets, setStatusSheets] = useState('');
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const singleFileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -82,8 +87,19 @@ export default function ConsolidarExcelClient() {
                 alert("Solo se permiten archivos de Excel (.xlsx, .xls). Los archivos no válidos fueron ignorados.");
             }
 
-            setFiles(validFiles);
-            setStatus('');
+            if (validFiles.length === 0) return;
+
+            // FIX: Handle modes correctly
+            if (mode === 'multiple-sheets') {
+                if (validFiles.length > 1) {
+                    alert("En Modo 'Unir Pestañas' solo se procesa un archivo a la vez. Se tomará el primero.");
+                }
+                setSingleFile(validFiles[0]);
+                setStatusSheets('');
+            } else {
+                setFiles(validFiles);
+                setStatus('');
+            }
         }
     };
 
@@ -327,29 +343,35 @@ export default function ConsolidarExcelClient() {
                                 </div>
 
                                 <div className="mb-8">
-                                    <label
-                                        htmlFor="dropzone-file"
+                                    <div
                                         onDragOver={handleDragOver}
                                         onDragEnter={handleDragOver}
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
+                                        onClick={() => fileInputRef.current?.click()}
                                         className={`group flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
                                             ? 'border-primary bg-primary/10 scale-[1.02]'
                                             : 'border-border bg-muted/50 hover:bg-muted hover:border-primary'
                                             }`}
                                     >
                                         <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
-                                            <svg className="w-12 h-12 mb-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                                            </svg>
+                                            <Upload className="w-12 h-12 mb-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                             <p className="mb-2 text-lg text-foreground font-medium">Haz clic o arrastra tus archivos aquí</p>
                                             <p className="text-sm text-muted-foreground">Soporta archivos .xlsx y .xls</p>
                                             <div className="flex justify-center mt-4">
                                                 <PrivacyBadge />
                                             </div>
                                         </div>
-                                        <input id="dropzone-file" type="file" className="hidden" multiple accept=".xlsx, .xls" onChange={handleFileChange} />
-                                    </label>
+                                        <input
+                                            ref={fileInputRef}
+                                            id="dropzone-file"
+                                            type="file"
+                                            className="hidden"
+                                            multiple
+                                            accept=".xlsx, .xls"
+                                            onChange={handleFileChange}
+                                        />
+                                    </div>
                                 </div>
 
                                 {files.length > 0 && (
@@ -376,26 +398,37 @@ export default function ConsolidarExcelClient() {
                                         </div>
                                     )}
 
-                                    <button
-                                        onClick={handleConsolidate}
-                                        disabled={files.length === 0 || isProcessing}
-                                        className="w-full sm:w-auto px-10 py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/30
-                               hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5
-                               disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed disabled:translate-y-0
-                               transition-all duration-200 text-lg"
-                                    >
-                                        {isProcessing ? (
-                                            <span className="flex items-center">
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Procesando...
-                                            </span>
-                                        ) : (
-                                            'Consolidar Archivos'
-                                        )}
-                                    </button>
+                                    <div className="flex gap-4 w-full sm:w-auto">
+                                        <button
+                                            onClick={() => { setFiles([]); setStatus(''); }}
+                                            disabled={files.length === 0 || isProcessing}
+                                            className="px-6 py-4 bg-muted text-muted-foreground font-bold rounded-xl shadow-lg hover:bg-muted/80 hover:text-foreground transition-all duration-200 flex items-center gap-2"
+                                            title="Limpiar archivos"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+
+                                        <button
+                                            onClick={handleConsolidate}
+                                            disabled={files.length === 0 || isProcessing}
+                                            className="flex-1 sm:w-auto px-10 py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/30
+                                   hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5
+                                   disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed disabled:translate-y-0
+                                   transition-all duration-200 text-lg"
+                                        >
+                                            {isProcessing ? (
+                                                <span className="flex items-center">
+                                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Procesando...
+                                                </span>
+                                            ) : (
+                                                'Consolidar Archivos'
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         )}
@@ -410,19 +443,34 @@ export default function ConsolidarExcelClient() {
                                 </div>
 
                                 <div className="mb-8">
-                                    <label htmlFor="single-file" className="group flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-xl cursor-pointer bg-muted/50 hover:bg-muted hover:border-primary transition-all duration-200">
+                                    <div
+                                        onDragOver={handleDragOver}
+                                        onDragEnter={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        onClick={() => singleFileInputRef.current?.click()}
+                                        className={`group flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
+                                            ? 'border-primary bg-primary/10 scale-[1.02]'
+                                            : 'border-border bg-muted/50 hover:bg-muted hover:border-primary'
+                                            }`}
+                                    >
                                         <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
-                                            <svg className="w-12 h-12 mb-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                                            </svg>
+                                            <FileSpreadsheet className="w-12 h-12 mb-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                             <p className="mb-2 text-lg text-foreground font-medium">Haz clic o arrastra un archivo aquí</p>
                                             <p className="text-sm text-muted-foreground">Soporta archivos .xlsx y .xls</p>
                                             <div className="flex justify-center mt-4">
                                                 <PrivacyBadge />
                                             </div>
                                         </div>
-                                        <input id="single-file" type="file" className="hidden" accept=".xlsx, .xls" onChange={handleSingleFileChange} />
-                                    </label>
+                                        <input
+                                            ref={singleFileInputRef}
+                                            id="single-file"
+                                            type="file"
+                                            className="hidden"
+                                            accept=".xlsx, .xls"
+                                            onChange={handleSingleFileChange}
+                                        />
+                                    </div>
                                 </div>
 
                                 {singleFile && (
@@ -445,26 +493,37 @@ export default function ConsolidarExcelClient() {
                                         </div>
                                     )}
 
-                                    <button
-                                        onClick={handleConsolidateSheets}
-                                        disabled={!singleFile || isProcessingSheets}
-                                        className="w-full sm:w-auto px-10 py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/30
-                               hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5
-                               disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed disabled:translate-y-0
-                               transition-all duration-200 text-lg"
-                                    >
-                                        {isProcessingSheets ? (
-                                            <span className="flex items-center">
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Procesando...
-                                            </span>
-                                        ) : (
-                                            'Consolidar Hojas'
-                                        )}
-                                    </button>
+                                    <div className="flex gap-4 w-full sm:w-auto">
+                                        <button
+                                            onClick={() => { setSingleFile(null); setStatusSheets(''); }}
+                                            disabled={!singleFile || isProcessingSheets}
+                                            className="px-6 py-4 bg-muted text-muted-foreground font-bold rounded-xl shadow-lg hover:bg-muted/80 hover:text-foreground transition-all duration-200 flex items-center gap-2"
+                                            title="Limpiar"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+
+                                        <button
+                                            onClick={handleConsolidateSheets}
+                                            disabled={!singleFile || isProcessingSheets}
+                                            className="flex-1 sm:w-auto px-10 py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/30
+                                   hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5
+                                   disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed disabled:translate-y-0
+                                   transition-all duration-200 text-lg"
+                                        >
+                                            {isProcessingSheets ? (
+                                                <span className="flex items-center">
+                                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Procesando...
+                                                </span>
+                                            ) : (
+                                                'Consolidar Hojas'
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         )}
