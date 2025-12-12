@@ -294,14 +294,19 @@ export default function PdfToolsClient() {
 
 
     const downloadBlob = (blob: Blob, filename: string) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        try {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        } catch (e: any) { // Type 'any' to avoid TS error
+            console.error("Download failed:", e);
+            alert(`Error al descargar: ${e.message}`);
+        }
     };
 
     return (

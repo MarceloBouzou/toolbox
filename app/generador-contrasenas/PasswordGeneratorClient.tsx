@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
+import { Eye, EyeOff, Check, Copy, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export default function PasswordGeneratorClient() {
     const [password, setPassword] = useState('');
@@ -14,7 +15,9 @@ export default function PasswordGeneratorClient() {
         lowercase: true,
         numbers: true,
         symbols: true,
+        excludeSimilar: false,
     });
+    const [showPassword, setShowPassword] = useState(true);
     const [copied, setCopied] = useState(false);
     const [strength, setStrength] = useState<'weak' | 'medium' | 'strong'>('medium');
 
@@ -31,6 +34,10 @@ export default function PasswordGeneratorClient() {
         if (options.lowercase) chars += charset.lowercase;
         if (options.numbers) chars += charset.numbers;
         if (options.symbols) chars += charset.symbols;
+
+        if (options.excludeSimilar) {
+            chars = chars.replace(/[0O1Il|]/g, '');
+        }
 
         if (chars === '') {
             setPassword('');
@@ -111,10 +118,20 @@ export default function PasswordGeneratorClient() {
 
                     {/* Display Area */}
                     <div className="relative mb-8">
-                        <div className="bg-muted/50 rounded-xl p-6 text-center break-all">
+                        <div className="bg-muted/50 rounded-xl p-6 text-center break-all relative flex items-center justify-center min-h-[5rem]">
+                            {/* Password Text (Masked or Visible) */}
                             <span className="text-3xl sm:text-4xl font-mono font-bold tracking-wider text-foreground">
-                                {password}
+                                {showPassword ? password : '•'.repeat(Math.min(password.length, 12))}
                             </span>
+
+                            {/* Show/Hide Toggle */}
+                            <button
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 p-2 text-muted-foreground hover:text-primary transition-colors"
+                                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
                         </div>
                         <div className={`h-1.5 w-full mt-2 rounded-full transition-colors duration-300 ${strength === 'weak' ? 'bg-red-500' :
                             strength === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
@@ -255,6 +272,26 @@ export default function PasswordGeneratorClient() {
                                     <div className="flex flex-col">
                                         <span className="font-bold">!@#</span>
                                         <span className="text-xs text-muted-foreground">Símbolos</span>
+                                    </div>
+                                </label>
+
+                                {/* Exclude Similar */}
+                                <label className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${options.excludeSimilar ? 'bg-primary/5 border-primary shadow-sm' : 'bg-card border-border hover:border-primary/50'} md:col-span-2 lg:col-span-1`}>
+                                    <div className={`w-6 h-6 rounded flex items-center justify-center border transition-colors ${options.excludeSimilar ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground'}`}>
+                                        {options.excludeSimilar && <Check size={16} />}
+                                    </div>
+                                    <input
+                                        type="checkbox"
+                                        checked={options.excludeSimilar}
+                                        onChange={() => toggleOption('excludeSimilar')}
+                                        className="hidden"
+                                    />
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-1 font-mono">
+                                            <span className="font-bold line-through opacity-50">1lI</span>
+                                            <span className="font-bold">Excluir</span>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground">Sin caracteres confusos</span>
                                     </div>
                                 </label>
                             </div>

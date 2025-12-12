@@ -44,11 +44,10 @@ export default function GastosCompartidosClient() {
     // Remove participant row
     const removeParticipant = (id: string) => {
         if (participants.length <= 2) {
-            // Reset instead of delete if only 2 left, or just allow deleting down to 1?
-            // Let's allow deleting down to 0, but maybe keep 1 minimun UI-wise? 
-            // Logic says at least 2 needed to split, but for UI actions let's just filter.
+            alert("Mínimo 2 participantes requeridos.");
+            return;
         }
-        setParticipants(participants.filter(p => p.id !== id));
+        setParticipants(prev => prev.filter(p => p.id !== id));
     };
 
     // Update participant data
@@ -247,7 +246,7 @@ export default function GastosCompartidosClient() {
                                 <div className="w-10 flex justify-center">
                                     <button
                                         onClick={() => removeParticipant(p.id)}
-                                        className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                                        className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
                                         title="Eliminar"
                                     >
                                         <Trash2 size={20} />

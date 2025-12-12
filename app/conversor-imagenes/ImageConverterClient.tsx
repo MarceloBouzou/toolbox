@@ -70,24 +70,29 @@ export default function ImageConverterClient() {
 
     const convertImages = async () => {
         setIsProcessing(true);
-        const newImages = [...images];
+        // Process mainly sequentially to allow state updates to reflect progress clearly
+        const indicesToProcess = images.map((img, idx) => img.status !== 'done' ? idx : -1).filter(i => i !== -1);
 
-        for (let i = 0; i < newImages.length; i++) {
-            if (newImages[i].status === 'done') continue;
-
-            newImages[i].status = 'converting';
-            setImages([...newImages]);
+        for (const i of indicesToProcess) {
+            // Update status to converting
+            setImages(prev => prev.map((img, idx) =>
+                idx === i ? { ...img, status: 'converting' } : img
+            ));
 
             try {
-                const blob = await convertSingleImage(newImages[i].preview, targetFormat);
-                newImages[i].blob = blob;
-                newImages[i].status = 'done';
-                newImages[i].format = targetFormat;
+                const img = images[i];
+                const blob = await convertSingleImage(img.preview, targetFormat);
+
+                // Update to done
+                setImages(prev => prev.map((item, idx) =>
+                    idx === i ? { ...item, status: 'done', blob: blob, format: targetFormat } : item
+                ));
             } catch (error) {
                 console.error(error);
-                newImages[i].status = 'error';
+                setImages(prev => prev.map((item, idx) =>
+                    idx === i ? { ...item, status: 'error' } : item
+                ));
             }
-            setImages([...newImages]);
         }
         setIsProcessing(false);
     };
@@ -120,7 +125,10 @@ export default function ImageConverterClient() {
     };
 
     const downloadImage = (img: ProcessedImage) => {
-        if (!img.blob) return;
+        if (!img.blob) {
+            alert('Error: La imagen no se generó correctamente. Intenta convertirla de nuevo.');
+            return;
+        }
         const url = URL.createObjectURL(img.blob);
         const a = document.createElement('a');
         a.href = url;
@@ -129,7 +137,7 @@ export default function ImageConverterClient() {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
     };
 
     const downloadAll = async () => {

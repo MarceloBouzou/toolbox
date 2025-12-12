@@ -31,14 +31,13 @@ export default function RandomDataClient() {
     // --- LOGIC: NUMBERS ---
     const generateNumbers = () => {
         let qty = parseInt(quantity);
-        if (isNaN(qty) || qty < 1) {
-            alert('La cantidad mínima es 1.');
-            return;
-        }
-        if (qty > 10000) {
-            alert('Por seguridad, el máximo de números a generar es 10,000.');
-            qty = 10000;
-            setQuantity('10000');
+        if (isNaN(qty) || qty < 1) qty = 1;
+
+        // Strict Limit
+        if (qty > 1000) {
+            alert('El límite seguro es de 1000 elementos.');
+            qty = 1000;
+            setQuantity('1000');
         }
 
         let result: number[] = [];
@@ -52,44 +51,37 @@ export default function RandomDataClient() {
                 return;
             }
 
-            // Safety limits for values
-            const SAFE_LIMIT = 1000000000; // 1 Billion
-            if (Math.abs(minVal) > SAFE_LIMIT || Math.abs(maxVal) > SAFE_LIMIT) {
-                alert(`Los valores no pueden exceder +/- ${SAFE_LIMIT}.`);
-                return;
+            // Swap if min > max
+            if (minVal > maxVal) {
+                const temp = minVal;
+                minVal = maxVal;
+                maxVal = temp;
+                setMin(minVal.toString());
+                setMax(maxVal.toString());
             }
 
-            if (minVal >= maxVal) {
-                alert('El mínimo debe ser menor que el máximo.');
+            // Safety limits
+            const SAFE_LIMIT = 1000000000;
+            if (Math.abs(minVal) > SAFE_LIMIT || Math.abs(maxVal) > SAFE_LIMIT) {
+                alert(`Los valores deben estar entre -${SAFE_LIMIT} y ${SAFE_LIMIT}.`);
                 return;
             }
 
             const rangeSize = maxVal - minVal + 1;
             if (!allowDuplicates && qty > rangeSize) {
-                alert(`No se pueden generar ${qty} números únicos en un rango de ${rangeSize}. El máximo posible es ${rangeSize}.`);
+                alert(`No es posible generar ${qty} números únicos en un rango de ${rangeSize} (del ${minVal} al ${maxVal}).`);
                 return;
             }
 
             if (!allowDuplicates) {
-                // If the range is small enough relative to qty, use Set
-                // If range is huge but qty is small, Set is fine.
-                // If range is huge and qty is huge, Set is fine (max 10k).
                 const set = new Set<number>();
-                // Panic button equivalent logic: 
-                // If we fail to find unique numbers after too many tries, stop.
                 let attempts = 0;
-                const maxAttempts = qty * 10;
-
-                while (set.size < qty && attempts < maxAttempts) {
+                // Safety break
+                while (set.size < qty && attempts < qty * 50) {
                     const rnd = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
                     set.add(rnd);
                     attempts++;
                 }
-
-                if (set.size < qty) {
-                    alert('No se pudieron encontrar suficientes números únicos en intentos razonables.');
-                }
-
                 result = Array.from(set);
             } else {
                 for (let i = 0; i < qty; i++) {
@@ -100,12 +92,9 @@ export default function RandomDataClient() {
         } else {
             // Length mode
             let len = parseInt(length);
-            if (isNaN(len) || len < 1) {
-                alert('La longitud mínima es 1 dígito.');
-                return;
-            }
+            if (isNaN(len) || len < 1) len = 1;
             if (len > 15) {
-                alert('El máximo de largo es 15 dígitos (para mantener precisión segura).');
+                alert('Máximo 15 dígitos.');
                 len = 15;
                 setLength('15');
             }
@@ -116,9 +105,7 @@ export default function RandomDataClient() {
             if (!allowDuplicates) {
                 const set = new Set<number>();
                 let attempts = 0;
-                const maxAttempts = qty * 10;
-
-                while (set.size < qty && attempts < maxAttempts) {
+                while (set.size < qty && attempts < qty * 50) {
                     const rnd = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
                     set.add(rnd);
                     attempts++;
@@ -304,7 +291,7 @@ export default function RandomDataClient() {
                                     <input
                                         type="number"
                                         value={uuidQty}
-                                        min="1" max="100"
+                                        min="1" max="1000"
                                         onChange={e => setUuidQty(e.target.value)}
                                         className="w-full bg-muted/50 border border-border rounded p-2 mt-1"
                                     />

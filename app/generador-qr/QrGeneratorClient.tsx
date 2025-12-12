@@ -20,6 +20,12 @@ export default function QrGeneratorClient() {
     // Labels & Watermark
     const [topLabel, setTopLabel] = useState('');
     const [bottomLabel, setBottomLabel] = useState('');
+
+    // Clear labels on type change to avoid confusion
+    useEffect(() => {
+        setTopLabel('');
+        setBottomLabel('');
+    }, [type]);
     // const [showWatermark, setShowWatermark] = useState(true); // Always on now
 
     // Wifi specific state
@@ -247,10 +253,11 @@ export default function QrGeneratorClient() {
                                         <label className="font-bold block mb-1">Contraseña</label>
                                         <input
                                             type="text"
-                                            className="w-full p-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50 outline-none transition-all"
-                                            placeholder="pass123"
+                                            className="w-full p-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50 outline-none transition-all disabled:opacity-50 disabled:bg-muted disabled:cursor-not-allowed"
+                                            placeholder={wifiEncryption === 'nopass' ? 'No requerida' : 'pass123'}
                                             value={wifiPassword}
                                             onChange={(e) => setWifiPassword(e.target.value)}
+                                            disabled={wifiEncryption === 'nopass'}
                                         />
                                     </div>
                                     <div>
