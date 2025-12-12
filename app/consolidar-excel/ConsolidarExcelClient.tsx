@@ -87,6 +87,16 @@ export default function ConsolidarExcelClient() {
         }
     };
 
+    const getTimestampedFilename = (prefix: string) => {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${prefix}_${day}${month}${year}_${hours}${minutes}hs.xlsx`;
+    };
+
     const handleConsolidate = async () => {
         if (files.length === 0) return;
         setIsProcessing(true);
@@ -163,7 +173,7 @@ export default function ConsolidarExcelClient() {
             const newWorksheet = XLSX.utils.aoa_to_sheet(masterData);
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Consolidado");
-            XLSX.writeFile(newWorkbook, "Consolidado_Master.xlsx");
+            XLSX.writeFile(newWorkbook, getTimestampedFilename("Consolidado_VariosARCHIVOS"));
 
             setStatus('¡Éxito! Tu archivo se ha descargado.');
 
@@ -236,11 +246,12 @@ export default function ConsolidarExcelClient() {
                 return;
             }
 
+            // AoA to Sheet
             const newWorksheet = XLSX.utils.aoa_to_sheet(masterData);
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Hojas_Consolidadas");
 
-            const fileName = singleFile.name.replace(/\.(xlsx|xls)$/i, '_Consolidado.xlsx');
+            const fileName = getTimestampedFilename("Consolidado_VariasHOJAS");
             XLSX.writeFile(newWorkbook, fileName);
 
             setStatusSheets('¡Éxito! Tu archivo se ha descargado.');

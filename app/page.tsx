@@ -201,28 +201,30 @@ export default function HomePage() {
                 className="group animate-fade-in-up"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="relative h-full bg-card hover:bg-muted/30 rounded-3xl p-6 transition-all duration-300 border border-border/50 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1 flex flex-col">
+                <div className="relative h-full bg-card hover:bg-muted/30 rounded-3xl p-6 transition-all duration-300 border border-border/50 hover:border-primary/20 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between">
 
-                  {/* Category Tag */}
-                  <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                      {tool.category}
-                    </span>
-                  </div>
+                  <div>
+                    {/* Category Tag */}
+                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-1 rounded-md">
+                        {tool.category}
+                      </span>
+                    </div>
 
-                  {/* Icon */}
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-500 ${tool.color}`}>
-                    {tool.icon}
-                  </div>
+                    {/* Icon */}
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-500 border border-gray-200 dark:border-transparent ${tool.color}`}>
+                      {tool.icon}
+                    </div>
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {tool.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {tool.description}
-                    </p>
+                    {/* Content */}
+                    <div className="">
+                      <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {tool.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {tool.description}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Arrow Indicator */}
