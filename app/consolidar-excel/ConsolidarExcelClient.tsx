@@ -25,14 +25,33 @@ export default function ConsolidarExcelClient() {
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
-            setFiles(Array.from(event.target.files));
+            const incomingFiles = Array.from(event.target.files);
+            const validExtensions = ['.xlsx', '.xls'];
+            const validFiles = incomingFiles.filter(file =>
+                validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+            );
+
+            if (validFiles.length !== incomingFiles.length) {
+                alert("Solo se permiten archivos de Excel (.xlsx, .xls). Los archivos no válidos fueron ignorados.");
+            }
+
+            setFiles(validFiles);
             setStatus('');
         }
     };
 
     const handleSingleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            setSingleFile(event.target.files[0]);
+            const file = event.target.files[0];
+            const validExtensions = ['.xlsx', '.xls'];
+            const isValid = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+
+            if (!isValid) {
+                alert("Solo se permiten archivos de Excel (.xlsx, .xls).");
+                return;
+            }
+
+            setSingleFile(file);
             setStatusSheets('');
         }
     };
@@ -53,7 +72,17 @@ export default function ConsolidarExcelClient() {
         e.preventDefault();
         setIsDragging(false);
         if (e.dataTransfer.files) {
-            setFiles(Array.from(e.dataTransfer.files));
+            const incomingFiles = Array.from(e.dataTransfer.files);
+            const validExtensions = ['.xlsx', '.xls'];
+            const validFiles = incomingFiles.filter(file =>
+                validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+            );
+
+            if (validFiles.length !== incomingFiles.length) {
+                alert("Solo se permiten archivos de Excel (.xlsx, .xls). Los archivos no válidos fueron ignorados.");
+            }
+
+            setFiles(validFiles);
             setStatus('');
         }
     };
@@ -61,12 +90,13 @@ export default function ConsolidarExcelClient() {
     const handleConsolidate = async () => {
         if (files.length === 0) return;
         setIsProcessing(true);
-        setStatus('Iniciando motor de procesamiento...');
+        setStatus('Iniciando motor de procesamiento (Modo Matriz)...');
 
         try {
             // "Array of Arrays" Strategy (Fixes staircase effect)
+            // We treating everything as a grid of values, ignoring column names keys.
             let masterData: any[][] = [];
-            let headers: any[] = [];
+            let hasHeader = false;
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -87,43 +117,49 @@ export default function ConsolidarExcelClient() {
 
                 workbook.SheetNames.forEach((sheetName) => {
                     const worksheet = workbook.Sheets[sheetName];
-                    // Read as Array of Arrays to respect verticality
+                    // Read as Array of Arrays [ ["Col1", "Col2"], ["Val1", "Val2"] ]
+                    // defval: "" ensures empty cells are empty strings, but header:1 returns dense or sparse arrays?
+                    // header: 1 returns array of arrays.
                     const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
                     if (rawData.length === 0) return;
 
-                    // Extract headers from the very first sheet of the first file
-                    if (masterData.length === 0) {
-                        headers = rawData[0];
+                    // Header Handling (Take from the very first sheet of first file)
+                    if (!hasHeader) {
+                        const headerRow = [...rawData[0]]; // Copy first row
                         // Add Traceability Headers manually
-                        headers.push("Fuente_Archivo", "Fuente_Hoja");
-                        masterData.push(headers);
+                        headerRow.push("Fuente_Archivo", "Fuente_Hoja");
+                        masterData.push(headerRow);
+                        hasHeader = true;
                     }
 
-                    // For data rows, we skip the first row (header) unless it's the master header (already handled)
-                    // If headers don't match index-wise, this strategy assumes they DO match visually.
-                    // Ideally we skip row 0 for every sheet and just take data
+                    // Data Rows (Skip index 0 which is header)
+                    // We assume all files have substantially same structure logic, or we just stack them.
                     const dataRows = rawData.slice(1);
 
                     dataRows.forEach(row => {
-                        // Ensure row has enough cells or push undefined?
-                        // Actually, just push the Source info at the end.
-                        // We might need to pad the row if it's shorter than headers?
-                        // For now strictly append.
-                        row.push(file.name, sheetName);
-                        masterData.push(row);
+                        // Ensure row is an array (sometimes empty rows might be sparse)
+                        if (!Array.isArray(row)) return;
+
+                        // We push the source info at the end of the array.
+                        // Ideally we should pad if row length < header length, but Excel usually handles it.
+                        // Clone row to avoid mutating original if needed, but here fine.
+                        const newRow = [...row];
+                        newRow.push(file.name, sheetName);
+                        masterData.push(newRow);
                     });
                 });
             }
 
-            setStatus('Unificando datos y generando Excel...');
+            setStatus('Unificando matriz de datos...');
 
-            if (masterData.length <= 1) { // Only header or empty
-                alert('No se pudieron extraer datos de los archivos seleccionados.');
+            if (masterData.length <= 1) {
+                alert('No se pudieron extraer datos (o solo había cabeceras).');
                 setIsProcessing(false);
                 return;
             }
 
+            // AoA to Sheet
             const newWorksheet = XLSX.utils.aoa_to_sheet(masterData);
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Consolidado");
@@ -287,8 +323,8 @@ export default function ConsolidarExcelClient() {
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
                                         className={`group flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
-                                                ? 'border-primary bg-primary/10 scale-[1.02]'
-                                                : 'border-border bg-muted/50 hover:bg-muted hover:border-primary'
+                                            ? 'border-primary bg-primary/10 scale-[1.02]'
+                                            : 'border-border bg-muted/50 hover:bg-muted hover:border-primary'
                                             }`}
                                     >
                                         <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">

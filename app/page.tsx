@@ -6,7 +6,7 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { VisitCounter } from '@/components/VisitCounter';
 import { ShareButton } from '@/components/ShareButton';
 import { FeedbackButton } from '@/components/FeedbackButton';
-import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode, DollarSign, Dices } from 'lucide-react';
+import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode, Users, Dices } from 'lucide-react';
 
 const tools = [
   {
@@ -18,10 +18,10 @@ const tools = [
     color: 'bg-purple-100/50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
   },
   {
-    title: 'Cuentas Claras',
+    title: 'Dividir Gastos',
     description: 'Divide gastos entre amigos para viajes, cenas o juntadas. Calcula quién le debe a quién fácil y rápido.',
     href: '/gastos-compartidos',
-    icon: <DollarSign size={48} className="stroke-1" />,
+    icon: <Users size={48} className="stroke-1" />,
     category: 'Datos',
     color: 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
   },
@@ -34,7 +34,7 @@ const tools = [
     color: 'bg-green-100/50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
   },
   {
-    title: 'Generador de Azar',
+    title: 'Crear números y códigos aleatorios',
     description: 'Crea números aleatorios por rango o longitud y genera UUIDs/GUIDs para tus bases de datos y testing.',
     href: '/azar',
     icon: <Dices size={48} className="stroke-1" />,
@@ -124,11 +124,14 @@ export default function HomePage() {
           <div className="text-center space-y-8 max-w-4xl mx-auto">
 
             {/* Title */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight animate-fade-in-up">
-              <span className="block text-foreground">La Caja de Herramientas</span>
-              <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-gradient-x">
-                Digital
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight animate-fade-in-up delay-200 font-mono">
+              <span className="text-muted-foreground/60 mr-2">[</span>
+              <span className="text-foreground">ToolBox</span>
+              <span className="text-primary mx-2">{'</>'}</span>
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                digital
               </span>
+              <span className="text-muted-foreground/60 ml-2">]</span>
             </h1>
 
             {/* Subtitle */}
@@ -240,6 +243,12 @@ export default function HomePage() {
       <footer className="relative mt-20 border-t border-border bg-gradient-to-b from-transparent to-muted/30">
         <div className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
           <div className="text-center space-y-4">
+            <div className="mb-6">
+              <p className="text-lg font-medium text-foreground/80 italic font-serif">
+                “First, solve the problem. Then, write the code.”
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">— John Johnson</p>
+            </div>
             <p className="text-muted-foreground text-sm">
               Hecho con <span className="text-red-500 animate-pulse">❤️</span> por <a href="https://www.linkedin.com/in/marcelobouzou/" target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:text-primary transition-colors hover:underline">Marcelo Bouzou</a>
             </p>

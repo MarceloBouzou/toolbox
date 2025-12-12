@@ -35,9 +35,22 @@ export default function PdfToolsClient() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFiles = (newFiles: File[]) => {
-        const pdFiles = newFiles
+        const validExtensions = ['.pdf'];
+        const validInputFiles = newFiles.filter(file =>
+            validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+        );
+
+        if (validInputFiles.length !== newFiles.length) {
+            alert("Solo se permiten archivos PDF (.pdf). Los archivos no válidos fueron ignorados.");
+        }
+
+        const pdFiles = validInputFiles
             .filter(f => {
-                if (f.type !== 'application/pdf') return false;
+                // Determine if strict mime check works for user. Keeping it but secondary to extension now.
+                // Actually user asked for strict extension.
+                // We keep the logic mostly but using validInputFiles as source.
+                if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) return false;
+
                 const MAX_SIZE = 50 * 1024 * 1024; // 50MB
                 if (f.size > MAX_SIZE) {
                     alert(`El archivo "${f.name}" es demasiado grande (>50MB). Se ha omitido para evitar problemas de memoria.`);
@@ -54,9 +67,11 @@ export default function PdfToolsClient() {
         const singleMode = mode === 'split' || mode === 'rotate' || mode === 'to-image';
 
         if (singleMode) {
-            setFiles(pdFiles.slice(0, 1));
-            // Reset rotation if new file loaded
-            setRotationAngle(0);
+            // Take the first one if multiple dropped
+            if (pdFiles.length > 0) {
+                setFiles(pdFiles.slice(0, 1));
+                setRotationAngle(0);
+            }
         } else {
             // For merge, we append
             setFiles(prev => [...prev, ...pdFiles]);
@@ -364,12 +379,13 @@ export default function PdfToolsClient() {
                 {files.length === 0 ? (
                     <div
                         onDragOver={handleDragOver}
+                        onDragEnter={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
                         className={`border-3 border-dashed rounded-3xl p-12 text-center cursor-pointer transition-all duration-300 group animate-fade-in-up ${isDragging
-                                ? 'border-primary bg-primary/10 scale-[1.02]'
-                                : 'border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30'
+                            ? 'border-primary bg-primary/10 scale-[1.02]'
+                            : 'border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30'
                             }`}
                     >
                         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">

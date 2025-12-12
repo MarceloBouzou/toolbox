@@ -78,7 +78,7 @@ export default function QrGeneratorClient() {
         let topOffset = padding;
         if (topLabel) topOffset += 80; // Space for top label
 
-        const contentHeight = topOffset + qrSize + (bottomLabel ? 80 : 0) + watermarkHeight + padding;
+        const contentHeight = topOffset + qrSize + (bottomLabel ? 80 : 0) + watermarkHeight + (padding * 2);
         const width = qrSize + (padding * 2);
 
         canvas.width = width;

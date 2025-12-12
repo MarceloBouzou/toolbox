@@ -45,7 +45,16 @@ export default function ImageConverterClient() {
     };
 
     const handleFiles = (files: File[]) => {
-        const imageFiles = files.filter(f => f.type.startsWith('image/'));
+        const validExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tiff'];
+        const validFiles = files.filter(file =>
+            validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+        );
+
+        if (validFiles.length !== files.length) {
+            alert("Solo se permiten archivos de imagen (PNG, JPG, WEBP, etc).");
+        }
+
+        const imageFiles = validFiles.filter(f => f.type.startsWith('image/'));
 
         const newImages: ProcessedImage[] = imageFiles.map(file => ({
             id: Math.random().toString(36).substr(2, 9),
@@ -211,6 +220,7 @@ export default function ImageConverterClient() {
                 {images.length === 0 ? (
                     <div
                         onDragOver={handleDragOver}
+                        onDragEnter={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
@@ -268,6 +278,7 @@ export default function ImageConverterClient() {
                         {/* Add More Card */}
                         <div
                             onDragOver={handleDragOver}
+                            onDragEnter={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}

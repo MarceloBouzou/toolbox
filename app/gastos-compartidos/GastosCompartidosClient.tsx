@@ -145,21 +145,21 @@ export default function GastosCompartidosClient() {
 
         const peopleCount = participants.filter(p => p.name.trim() || parseFloat(p.amount) > 0).length;
 
-        let text = `🥩 *Resumen de Gastos* 🥩\n`;
+        let text = `📊 *Resumen de Gastos*\n`;
         text += `Total: $${formatCurrency(summary.total)}\n`;
         text += `Somos ${peopleCount} ($${formatCurrency(summary.average)} c/u)\n\n`;
 
-        text += `💸 *A ponerla:*\n`;
+        text += `👉 *Plan de Pagos:*\n`;
 
         if (summary.transactions.length === 0) {
             text += `✅ ¡Nadie debe nada! Todo cuadrado.`;
         } else {
             summary.transactions.forEach(t => {
-                text += `❌ ${t.from} le pasa $${formatCurrency(t.amount)} a ${t.to}\n`;
+                text += `- ${t.from} le paga $${formatCurrency(t.amount)} a ${t.to}\n`;
             });
         }
 
-        text += `\n🚀 Calculado con Kit Digital (${window.location.host})\n☕ ¿Te sirvió? Colaborá con el dev: marcelobouzou.mp`;
+        text += `\n🚀 Calculado con Kit Digital (toolboxdigital.vercel.app)\n☕ ¿Te sirvió? Invitale un café al desarrollador: marcelobouzou.mp`;
         return text;
     };
 
@@ -172,18 +172,16 @@ export default function GastosCompartidosClient() {
             })
             .catch(err => {
                 console.error("Failed to copy:", err);
-                // Fallback for older browsers or if permission denied could go here
-                // For now, at least we don't crash
             });
     };
 
     const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
+        return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
     };
 
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col">
-            <Header title="Cuentas Claras" showBack>
+            <Header title="Dividir Gastos" showBack>
                 <div className="mr-4">
                     <ShareButton />
                 </div>
@@ -197,7 +195,7 @@ export default function GastosCompartidosClient() {
                 {/* Intro */}
                 <div className="text-center space-y-2 animate-fade-in">
                     <h2 className="text-2xl font-bold flex items-center justify-center gap-2">
-                        <Users className="text-primary" /> Dividir Gastos
+                        <Users className="text-primary" /> Cuentas Claras
                     </h2>
                     <p className="text-muted-foreground text-sm max-w-md mx-auto">
                         Ingresa quiénes participaron y cuánto pagó cada uno. Nosotros calculamos quién le debe a quién para que las cuentas cierren.
@@ -234,7 +232,8 @@ export default function GastosCompartidosClient() {
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
                                     <input
                                         type="number"
-                                        placeholder="0"
+                                        placeholder="0.00"
+                                        step="0.01"
                                         className="w-full pl-8 pr-4 py-3 bg-muted/40 border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all font-mono text-right font-medium"
                                         value={p.amount}
                                         onChange={(e) => updateParticipant(p.id, 'amount', e.target.value)}
@@ -301,7 +300,7 @@ export default function GastosCompartidosClient() {
                             {/* Transactions List */}
                             <div className="p-6">
                                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                                    <DollarSign className="text-green-500" /> Transferencias Necesarias
+                                    <DollarSign className="text-green-500" /> Plan de Pagos
                                 </h3>
 
                                 {summary.transactions.length === 0 ? (
@@ -313,9 +312,9 @@ export default function GastosCompartidosClient() {
                                     <div className="space-y-3">
                                         {summary.transactions.map((t, idx) => (
                                             <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/50">
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm sm:text-base">
                                                     <span className="font-bold text-red-500 dark:text-red-400">{t.from}</span>
-                                                    <span className="text-muted-foreground text-xs"><ArrowRight size={14} /></span>
+                                                    <span className="text-muted-foreground">le paga a</span>
                                                     <span className="font-bold text-green-600 dark:text-green-400">{t.to}</span>
                                                 </div>
                                                 <div className="font-mono font-bold text-lg">

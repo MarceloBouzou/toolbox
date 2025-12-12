@@ -13,7 +13,7 @@ export function Header({ title = "La Caja de Herramientas", showBack = false, ch
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     {showBack && (
-                        <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
+                        <Link href="/" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/50 border border-border text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all">
                             &larr; Volver
                         </Link>
                     )}
