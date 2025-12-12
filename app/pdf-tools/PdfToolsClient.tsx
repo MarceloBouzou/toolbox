@@ -67,6 +67,26 @@ export default function PdfToolsClient() {
         setFiles(prev => prev.filter(f => f.id !== id));
     };
 
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        if (e.dataTransfer.files) {
+            handleFiles(Array.from(e.dataTransfer.files));
+        }
+    };
+
     // --- LOGIC: MERGE ---
     const mergePdfs = async () => {
         if (files.length < 2) return;
@@ -182,9 +202,39 @@ export default function PdfToolsClient() {
             const loadingTask = pdfjsLib.getDocument(new Uint8Array(arrayBuffer));
             const pdf = await loadingTask.promise;
 
+            const totalPages = pdf.numPages;
+
+            // Smart Download: If single page, download image directly
+            if (totalPages === 1) {
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                if (context) {
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    } as any).promise;
+
+                    const blob = await new Promise<Blob | null>(resolve =>
+                        canvas.toBlob(resolve, imageFormat === 'png' ? 'image/png' : 'image/jpeg', 0.9)
+                    );
+
+                    if (blob) {
+                        const ext = imageFormat === 'png' ? 'png' : 'jpg';
+                        downloadBlob(blob, `${pdfFile.name.replace('.pdf', '')}_pagina_1.${ext}`);
+                    }
+                }
+                setIsProcessing(false);
+                return;
+            }
+
+            // Multiple pages -> ZIP
             const zip = new JSZip();
             const folder = zip.folder("imagenes_pdf");
-            const totalPages = pdf.numPages;
 
             for (let i = 1; i <= totalPages; i++) {
                 const page = await pdf.getPage(i);
@@ -313,8 +363,14 @@ export default function PdfToolsClient() {
                 {/* Upload Zone */}
                 {files.length === 0 ? (
                     <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
-                        className="border-3 border-dashed border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30 rounded-3xl p-12 text-center cursor-pointer transition-all duration-300 group animate-fade-in-up"
+                        className={`border-3 border-dashed rounded-3xl p-12 text-center cursor-pointer transition-all duration-300 group animate-fade-in-up ${isDragging
+                                ? 'border-primary bg-primary/10 scale-[1.02]'
+                                : 'border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/30'
+                            }`}
                     >
                         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             {mode === 'rotate' ? <RotateCw className="text-muted-foreground w-10 h-10" /> :
@@ -322,7 +378,7 @@ export default function PdfToolsClient() {
                                     <FileText className="text-muted-foreground w-10 h-10" />}
                         </div>
                         <h3 className="text-xl font-bold mb-2">Selecciona tus archivos PDF</h3>
-                        <p className="text-muted-foreground mb-6">Haz clic para buscar en tu dispositivo</p>
+                        <p className="text-muted-foreground mb-6">Haz clic o arrastra tus archivos aquí</p>
                         <div className="flex justify-center">
                             <PrivacyBadge />
                         </div>

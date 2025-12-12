@@ -124,18 +124,23 @@ export default function ImageConverterClient() {
     };
 
     const downloadAll = async () => {
+        const doneImages = images.filter(img => img.status === 'done' && img.blob);
+
+        if (doneImages.length === 0) return;
+
+        // Smart Download: Single file -> Direct download
+        if (doneImages.length === 1) {
+            downloadImage(doneImages[0]);
+            return;
+        }
+
+        // Multiple files -> ZIP
         const zip = new JSZip();
-        let count = 0;
 
-        images.forEach(img => {
-            if (img.status === 'done' && img.blob) {
-                const nameWithoutExt = img.originalName.substring(0, img.originalName.lastIndexOf('.')) || img.originalName;
-                zip.file(`${nameWithoutExt}.${img.format}`, img.blob);
-                count++;
-            }
+        doneImages.forEach(img => {
+            const nameWithoutExt = img.originalName.substring(0, img.originalName.lastIndexOf('.')) || img.originalName;
+            zip.file(`${nameWithoutExt}.${img.format}`, img.blob!);
         });
-
-        if (count === 0) return;
 
         const content = await zip.generateAsync({ type: "blob" });
         const url = URL.createObjectURL(content);
@@ -262,8 +267,14 @@ export default function ImageConverterClient() {
 
                         {/* Add More Card */}
                         <div
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}
-                            className="border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[5rem]"
+                            className={`border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[5rem] ${isDragging
+                                ? 'border-primary bg-primary/5 scale-[1.02]'
+                                : 'hover:border-primary/50 hover:bg-muted/30'
+                                }`}
                         >
                             <Upload className="text-muted-foreground mb-1" size={20} />
                             <span className="text-xs font-medium text-muted-foreground">Agregar más</span>
@@ -277,7 +288,8 @@ export default function ImageConverterClient() {
                             onClick={downloadAll}
                             className="px-6 py-3 bg-foreground text-background rounded-full font-bold shadow-2xl hover:scale-105 transition-transform flex items-center gap-2"
                         >
-                            <Download size={20} /> Descargar Todo (ZIP)
+                            <Download size={20} />
+                            {images.filter(i => i.status === 'done').length === 1 ? 'Descargar Imagen' : 'Descargar Todo (ZIP)'}
                         </button>
                     </div>
                 )}

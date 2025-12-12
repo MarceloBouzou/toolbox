@@ -165,10 +165,16 @@ export default function GastosCompartidosClient() {
 
     const copyToClipboard = () => {
         const text = generateWhatsAppText();
-        navigator.clipboard.writeText(text).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        });
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            })
+            .catch(err => {
+                console.error("Failed to copy:", err);
+                // Fallback for older browsers or if permission denied could go here
+                // For now, at least we don't crash
+            });
     };
 
     const formatCurrency = (val: number) => {

@@ -56,7 +56,12 @@ Código de error: 404. Precio: $99.`);
                 result = input.replace(/(\r\n|\n|\r)/gm, ' ');
                 break;
             case 'striphtml':
-                result = input.replace(/<[^>]*>?/gm, '');
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(input, 'text/html');
+                // Remove scripts and styles
+                const scripts = doc.querySelectorAll('script, style');
+                scripts.forEach(script => script.remove());
+                result = doc.body.textContent || '';
                 break;
 
             // Extract

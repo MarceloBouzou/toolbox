@@ -37,19 +37,44 @@ export default function ConsolidarExcelClient() {
         }
     };
 
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        if (e.dataTransfer.files) {
+            setFiles(Array.from(e.dataTransfer.files));
+            setStatus('');
+        }
+    };
+
     const handleConsolidate = async () => {
         if (files.length === 0) return;
         setIsProcessing(true);
         setStatus('Iniciando motor de procesamiento...');
 
         try {
-            const allData: any[] = [];
+            // "Array of Arrays" Strategy (Fixes staircase effect)
+            let masterData: any[][] = [];
+            let headers: any[] = [];
 
-            for (const file of files) {
-                // Safety: Limit file size to 25MB to prevent browser crash
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // Safety: Limit file size to 25MB
                 const MAX_SIZE = 25 * 1024 * 1024;
                 if (file.size > MAX_SIZE) {
-                    const confirmLoad = confirm(`El archivo "${file.name}" pesa más de 25MB (${(file.size / 1024 / 1024).toFixed(1)}MB). Procesarlo podría congelar el navegador. ¿Deseas continuar bajo tu propio riesgo?`);
+                    const confirmLoad = confirm(`El archivo "${file.name}" pesa más de 25MB. ¿Continuar bajo tu riesgo?`);
                     if (!confirmLoad) {
                         setStatus(`Saltado: ${file.name} (Muy pesado)`);
                         continue;
@@ -62,26 +87,44 @@ export default function ConsolidarExcelClient() {
 
                 workbook.SheetNames.forEach((sheetName) => {
                     const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                    // Read as Array of Arrays to respect verticality
+                    const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
-                    const rowsWithSource = jsonData.map((row: any) => ({
-                        ...row,
-                        Fuente_Archivo: file.name,
-                        Fuente_Hoja: sheetName
-                    }));
-                    allData.push(...rowsWithSource);
+                    if (rawData.length === 0) return;
+
+                    // Extract headers from the very first sheet of the first file
+                    if (masterData.length === 0) {
+                        headers = rawData[0];
+                        // Add Traceability Headers manually
+                        headers.push("Fuente_Archivo", "Fuente_Hoja");
+                        masterData.push(headers);
+                    }
+
+                    // For data rows, we skip the first row (header) unless it's the master header (already handled)
+                    // If headers don't match index-wise, this strategy assumes they DO match visually.
+                    // Ideally we skip row 0 for every sheet and just take data
+                    const dataRows = rawData.slice(1);
+
+                    dataRows.forEach(row => {
+                        // Ensure row has enough cells or push undefined?
+                        // Actually, just push the Source info at the end.
+                        // We might need to pad the row if it's shorter than headers?
+                        // For now strictly append.
+                        row.push(file.name, sheetName);
+                        masterData.push(row);
+                    });
                 });
             }
 
             setStatus('Unificando datos y generando Excel...');
 
-            if (allData.length === 0) {
+            if (masterData.length <= 1) { // Only header or empty
                 alert('No se pudieron extraer datos de los archivos seleccionados.');
                 setIsProcessing(false);
                 return;
             }
 
-            const newWorksheet = XLSX.utils.json_to_sheet(allData);
+            const newWorksheet = XLSX.utils.aoa_to_sheet(masterData);
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Consolidado");
             XLSX.writeFile(newWorkbook, "Consolidado_Master.xlsx");
@@ -115,7 +158,9 @@ export default function ConsolidarExcelClient() {
 
             const data = await singleFile.arrayBuffer();
             const workbook = XLSX.read(data);
-            const allData: any[] = [];
+
+            let masterData: any[][] = [];
+            let headers: any[] = [];
 
             if (workbook.SheetNames.length === 0) {
                 alert('El archivo no contiene hojas.');
@@ -127,24 +172,35 @@ export default function ConsolidarExcelClient() {
 
             workbook.SheetNames.forEach((sheetName) => {
                 const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                // Read as Array of Arrays
+                const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
-                const rowsWithSource = jsonData.map((row: any) => ({
-                    ...row,
-                    Fuente_Hoja: sheetName
-                }));
-                allData.push(...rowsWithSource);
+                if (rawData.length === 0) return;
+
+                // First sheet defines headers
+                if (masterData.length === 0) {
+                    headers = rawData[0];
+                    headers.push("Fuente_Hoja");
+                    masterData.push(headers);
+                }
+
+                // Data rows (skip header)
+                const dataRows = rawData.slice(1);
+                dataRows.forEach(row => {
+                    row.push(sheetName);
+                    masterData.push(row);
+                });
             });
 
             setStatusSheets('Generando Excel consolidado...');
 
-            if (allData.length === 0) {
+            if (masterData.length <= 1) {
                 alert('Las hojas parecen estar vacías.');
                 setIsProcessingSheets(false);
                 return;
             }
 
-            const newWorksheet = XLSX.utils.json_to_sheet(allData);
+            const newWorksheet = XLSX.utils.aoa_to_sheet(masterData);
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Hojas_Consolidadas");
 
@@ -224,7 +280,17 @@ export default function ConsolidarExcelClient() {
                                 </div>
 
                                 <div className="mb-8">
-                                    <label htmlFor="dropzone-file" className="group flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-xl cursor-pointer bg-muted/50 hover:bg-muted hover:border-primary transition-all duration-200">
+                                    <label
+                                        htmlFor="dropzone-file"
+                                        onDragOver={handleDragOver}
+                                        onDragEnter={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        className={`group flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
+                                                ? 'border-primary bg-primary/10 scale-[1.02]'
+                                                : 'border-border bg-muted/50 hover:bg-muted hover:border-primary'
+                                            }`}
+                                    >
                                         <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
                                             <svg className="w-12 h-12 mb-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
