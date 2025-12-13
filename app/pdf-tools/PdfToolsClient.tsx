@@ -5,7 +5,8 @@ import { Header } from '@/components/Header';
 import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
-import { Upload, X, Download, FileText, RefreshCw, Scissors, Layers, RotateCw, Image as ImageIcon, ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react';
+import { HelpAccordion } from '@/components/HelpAccordion';
+import { Upload, X, Download, FileText, RefreshCw, Scissors, Layers, RotateCw, Image as ImageIcon, ArrowLeft, ArrowRight, RotateCcw, AlertTriangle } from 'lucide-react';
 import { PDFDocument, degrees } from 'pdf-lib';
 import JSZip from 'jszip';
 // Import pdfjs-dist dynamically to avoid SSR issues if possible, but standard import is usually fine for client components
@@ -119,9 +120,16 @@ export default function PdfToolsClient() {
 
             const pdfBytes = await mergedPdf.save();
             downloadBlob(new Blob([pdfBytes as any], { type: 'application/pdf' }), 'unido.pdf');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error merging PDFs:', error);
-            alert('Hubo un error al unir los PDFs. Asegúrate de que no estén protegidos con contraseña.');
+            const msg = error.message || '';
+            if (msg.includes('Password') || msg.includes('password')) {
+                alert('No podemos procesar PDFs protegidos con contraseña. Por favor, desbloquéalos primero.');
+            } else if (msg.includes('Invalid') || msg.includes('corrupt') || msg.includes('structure')) {
+                alert('Uno de los archivos parece estar dañado o no es un PDF válido.');
+            } else {
+                alert(`Hubo un error al unir los PDFs: ${msg}`);
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -152,9 +160,11 @@ export default function PdfToolsClient() {
             const content = await zip.generateAsync({ type: "blob" });
             downloadBlob(content, `${pdfFile.name.replace('.pdf', '')}_paginas.zip`);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error splitting PDF:', error);
-            alert('Hubo un error al dividir el PDF.');
+            const msg = error.message || '';
+            if (msg.includes('Password')) alert('PDF protegido con contraseña.');
+            else alert(`Error al dividir: ${msg}`);
         } finally {
             setIsProcessing(false);
         }
@@ -187,9 +197,11 @@ export default function PdfToolsClient() {
 
             // Reset after success? or keep?
             // setRotationAngle(0); 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error rotating PDF:', error);
-            alert('Hubo un error al rotar el PDF.');
+            const msg = error.message || '';
+            if (msg.includes('Password')) alert('PDF protegido con contraseña.');
+            else alert(`Error al rotar: ${msg}`);
         } finally {
             setIsProcessing(false);
         }
@@ -321,6 +333,13 @@ export default function PdfToolsClient() {
             </div>
 
             <main className="flex-1 max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
+
+                <HelpAccordion items={[
+                    "Selecciona la herramienta que necesitas: Unir, Dividir, Rotar o Convertir.",
+                    "Arrastra tus archivos PDF al área indicada (Máximo 50MB por archivo).",
+                    "Si vas a unir, puedes agregar múltiples archivos.",
+                    "Todo el procesamiento se hace en tu navegador, garantizando privacidad."
+                ]} />
 
                 {/* Tabs */}
                 <div className="flex flex-wrap gap-2 bg-muted p-1 rounded-xl self-center justify-center">

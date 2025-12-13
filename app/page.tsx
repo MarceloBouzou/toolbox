@@ -124,14 +124,14 @@ export default function HomePage() {
           <div className="text-center space-y-8 max-w-4xl mx-auto">
 
             {/* Title */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight animate-fade-in-up delay-200 font-mono">
-              <span className="text-muted-foreground/60 mr-2">[</span>
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight animate-fade-in-up delay-200 font-mono flex flex-wrap justify-center items-center gap-2 sm:gap-3">
+              <span className="text-muted-foreground/60">[</span>
               <span className="text-foreground">ToolBox</span>
-              <span className="text-primary mx-2">{'</>'}</span>
+              <span className="text-primary">{'</>'}</span>
               <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                 digital
               </span>
-              <span className="text-muted-foreground/60 ml-2">]</span>
+              <span className="text-muted-foreground/60">]</span>
             </h1>
 
             {/* Subtitle */}

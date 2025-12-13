@@ -6,7 +6,8 @@ import { Header } from '@/components/Header';
 import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
-import { Download, Link as LinkIcon, Type, Wifi, Mail, QrCode, AlignCenter, User } from 'lucide-react';
+import { HelpAccordion } from '@/components/HelpAccordion';
+import { Download, Link as LinkIcon, Type, Wifi, Mail, QrCode, AlignCenter, User, AlertTriangle } from 'lucide-react';
 
 type QrType = 'url' | 'text' | 'wifi' | 'email';
 
@@ -39,10 +40,10 @@ export default function QrGeneratorClient() {
     const [body, setBody] = useState('');
 
     const WATERMARK_TEXT = [
-        "Creado por Marcelo Bouzou",
-        "Arquitecto de Soluciones y Procesos de Negocio",
-        "Cel. 549 11 3246-5634 | marcelobouzou@gmail.com"
+        "Creado por Marcelo Bouzou | Arquitecto de Soluciones | +54 9 11 3246-5634 | marcelobouzou@gmail.com"
     ];
+
+    const MAX_QR_LENGTH = 1500;
 
     const getQrValue = () => {
         switch (type) {
@@ -76,9 +77,9 @@ export default function QrGeneratorClient() {
         const labelHeight = topLabel || bottomLabel ? 60 * scale : 0; // Space for labels
 
         // Minimalist watermark settings
-        const watermarkFontSize = 14;
-        const watermarkLineHeight = 20;
-        const watermarkHeight = (WATERMARK_TEXT.length * watermarkLineHeight) + 30; // 30px padding above
+        const watermarkFontSize = 10;
+        const watermarkLineHeight = 14;
+        const watermarkHeight = ((WATERMARK_TEXT.length * watermarkLineHeight) + 20) * scale;
 
         // Total Text Heights
         let topOffset = padding;
@@ -136,8 +137,8 @@ export default function QrGeneratorClient() {
                 ctx.globalAlpha = 0.6; // Make it subtle
 
                 WATERMARK_TEXT.forEach((line, index) => {
-                    ctx.font = index === 0 ? `bold ${20}px sans-serif` : `${18}px sans-serif`;
-                    ctx.fillText(line, width / 2, bottomY + (index * watermarkLineHeight));
+                    ctx.font = `${watermarkFontSize * scale}px sans-serif`;
+                    ctx.fillText(line, width / 2, bottomY + (index * watermarkLineHeight * scale));
                 });
                 ctx.globalAlpha = 1.0; // Reset alpha
 
@@ -183,6 +184,12 @@ export default function QrGeneratorClient() {
 
                 {/* Left Side: Inputs */}
                 <div className="flex-1 space-y-6">
+                    <HelpAccordion items={[
+                        "Elige qué tipo de QR quieres crear (Enlace, Texto, WiFi).",
+                        "Ingresa los datos. Validamos el largo para evitar errores de lectura.",
+                        "Personaliza colores y textos.",
+                        "Descarga tu QR listo para usar."
+                    ]} />
 
                     {/* Type Selector */}
                     <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
@@ -216,9 +223,11 @@ export default function QrGeneratorClient() {
                                     placeholder="https://www.ejemplo.com"
                                     value={value}
                                     onChange={(e) => setValue(e.target.value)}
-                                    maxLength={2000}
+                                    maxLength={1000}
                                 />
-                                <p className="text-xs text-muted-foreground text-right">{value.length}/2000</p>
+                                <p className={`text-xs text-right ${value.length >= 1000 ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
+                                    {value.length}/1000 {value.length >= 1000 && '(Límite seguro alcanzado)'}
+                                </p>
                             </div>
                         )}
 
@@ -230,9 +239,11 @@ export default function QrGeneratorClient() {
                                     placeholder="Escribe algo aquí..."
                                     value={value}
                                     onChange={(e) => setValue(e.target.value)}
-                                    maxLength={2000}
+                                    maxLength={1000}
                                 />
-                                <p className="text-xs text-muted-foreground text-right">{value.length}/2000</p>
+                                <p className={`text-xs text-right ${value.length >= 1000 ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
+                                    {value.length}/1000 {value.length >= 1000 && '(Límite seguro alcanzado)'}
+                                </p>
                             </div>
                         )}
 
@@ -342,6 +353,13 @@ export default function QrGeneratorClient() {
                             </div>
                         </div>
 
+                        {fgColor === bgColor && (
+                            <div className="mb-4 p-3 bg-yellow-100 border border-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-200 rounded-lg text-xs font-medium flex items-center gap-2 animate-pulse">
+                                <AlertTriangle size={16} />
+                                <span>Precaución: El color del código y del fondo son iguales. No será legible.</span>
+                            </div>
+                        )}
+
                         <div className="space-y-4 pt-4 border-t border-border/50">
                             <div>
                                 <label className="block text-sm font-bold mb-2 flex items-center gap-2">
@@ -370,7 +388,7 @@ export default function QrGeneratorClient() {
                                 />
                             </div>
                             <p className="text-xs text-muted-foreground italic flex items-center gap-1">
-                                <User size={12} /> Se incluirá firma del creador automáticamente.
+                                <User size={12} /> Se incluirá marca de agua pequeña.
                             </p>
                         </div>
                     </div>
@@ -396,15 +414,23 @@ export default function QrGeneratorClient() {
                             )}
 
                             <div className="bg-white p-1">
-                                <QRCodeSVG
-                                    id="qr-main-svg"
-                                    value={getQrValue()}
-                                    size={250}
-                                    fgColor={fgColor}
-                                    bgColor={bgColor} // Actually SVG bg usually transparent if container has bg, but let's match
-                                    level={'H'}
-                                    includeMargin={false}
-                                />
+                                {getQrValue().length > 1500 ? (
+                                    <div className="flex flex-col items-center justify-center w-[250px] h-[250px] bg-muted text-muted-foreground p-4 text-center border border-dashed border-destructive/50 rounded">
+                                        <AlertTriangle className="text-destructive mb-2" size={32} />
+                                        <p className="font-bold text-sm text-destructive">¡Demasiados Datos!</p>
+                                        <p className="text-xs mt-1">El código QR no soporta tantos caracteres ({getQrValue().length}).</p>
+                                    </div>
+                                ) : (
+                                    <QRCodeSVG
+                                        id="qr-main-svg"
+                                        value={getQrValue()}
+                                        size={250}
+                                        fgColor={fgColor}
+                                        bgColor={bgColor}
+                                        level={'M'}
+                                        includeMargin={false}
+                                    />
+                                )}
                             </div>
 
                             {bottomLabel && (
@@ -413,10 +439,10 @@ export default function QrGeneratorClient() {
                                 </p>
                             )}
 
-                            {/* Minimalist Watermark Always Shown */}
-                            <div className="mt-8 pt-4 border-t border-black/5 text-[10px] opacity-60 leading-tight space-y-0.5 font-sans" style={{ color: fgColor }}>
+                            {/* Minimalist Watermark */}
+                            <div className="mt-4 pt-2 border-t border-black/10 text-[9px] text-center leading-tight space-y-0.5 font-sans opacity-70" style={{ color: fgColor }}>
                                 {WATERMARK_TEXT.map((line, i) => (
-                                    <p key={i} className={i === 0 ? "font-semibold" : ""}>{line}</p>
+                                    <p key={i}>{line}</p>
                                 ))}
                             </div>
                         </div>

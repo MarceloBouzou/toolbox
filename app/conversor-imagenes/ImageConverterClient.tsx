@@ -8,7 +8,7 @@ import { PrivacyBadge } from '@/components/PrivacyBadge';
 import { Upload, X, Download, FileImage, RefreshCw } from 'lucide-react';
 import JSZip from 'jszip';
 
-type ImageFormat = 'png' | 'jpeg' | 'webp';
+type ImageFormat = 'png' | 'jpeg' | 'webp' | 'ico' | 'avif';
 
 interface ProcessedImage {
     id: string;
@@ -45,7 +45,7 @@ export default function ImageConverterClient() {
     };
 
     const handleFiles = (files: File[]) => {
-        const validExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tiff'];
+        const validExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tiff', '.ico', '.avif'];
         const validFiles = files.filter(file =>
             validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
         );
@@ -110,10 +110,15 @@ export default function ImageConverterClient() {
                     return;
                 }
                 ctx.drawImage(img, 0, 0);
+
+                let mimeType = `image/${format}`;
+                if (format === 'ico') mimeType = 'image/x-icon';
+                // avif is image/avif, valid.
+
                 canvas.toBlob((blob) => {
                     if (blob) resolve(blob);
                     else reject(new Error('Conversion failed'));
-                }, `image/${format}`, 0.9);
+                }, mimeType, 0.9);
             };
             img.onerror = reject;
             img.src = url;
@@ -190,7 +195,7 @@ export default function ImageConverterClient() {
                         <div className="flex items-center gap-4">
                             <span className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Convertir a:</span>
                             <div className="flex bg-muted p-1 rounded-lg">
-                                {(['webp', 'png', 'jpeg'] as ImageFormat[]).map((fmt) => (
+                                {(['webp', 'png', 'jpeg', 'avif', 'ico'] as ImageFormat[]).map((fmt) => (
                                     <button
                                         key={fmt}
                                         onClick={() => setTargetFormat(fmt)}
@@ -318,7 +323,7 @@ export default function ImageConverterClient() {
                     ref={fileInputRef}
                     onChange={(e) => e.target.files && handleFiles(Array.from(e.target.files))}
                     className="hidden"
-                    accept="image/png, image/jpeg, image/webp"
+                    accept="image/png, image/jpeg, image/webp, image/avif, image/x-icon, image/gif, image/bmp, image/tiff"
                     multiple
                 />
 

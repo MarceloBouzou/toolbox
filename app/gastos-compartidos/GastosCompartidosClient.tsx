@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
 import { PrivacyBadge } from '@/components/PrivacyBadge';
+import { HelpAccordion } from '@/components/HelpAccordion';
 import { Plus, Trash2, Calculator, Copy, Check, Users, DollarSign, ArrowRight } from 'lucide-react';
 
 interface Participant {
@@ -191,6 +192,13 @@ export default function GastosCompartidosClient() {
 
             <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
 
+                <HelpAccordion items={[
+                    "Agrega a todas las personas que participaron del gasto.",
+                    "Ingresa el monto que puso cada uno (si no puso nada, deja 0).",
+                    "Presiona 'Calcular División' y nosotros hacemos la matemática.",
+                    "Comparte el resumen final por WhatsApp."
+                ]} />
+
                 {/* Intro */}
                 <div className="text-center space-y-2 animate-fade-in">
                     <h2 className="text-2xl font-bold flex items-center justify-center gap-2">
@@ -222,6 +230,7 @@ export default function GastosCompartidosClient() {
                                         className="w-full px-4 py-3 bg-muted/40 border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/40 font-medium"
                                         value={p.name}
                                         onChange={(e) => updateParticipant(p.id, 'name', e.target.value)}
+                                        maxLength={20}
                                         autoFocus={index === participants.length - 1 && participants.length > 2}
                                     />
                                 </div>
@@ -233,11 +242,16 @@ export default function GastosCompartidosClient() {
                                         type="number"
                                         placeholder="0.00"
                                         step="0.01"
+                                        min="0"
                                         className="w-full pl-8 pr-4 py-3 bg-muted/40 border border-border rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all font-mono text-right font-medium"
                                         value={p.amount}
-                                        onChange={(e) => updateParticipant(p.id, 'amount', e.target.value)}
+                                        onChange={(e) => {
+                                            if (Number(e.target.value) < 0) return; // Prevent negative
+                                            updateParticipant(p.id, 'amount', e.target.value);
+                                        }}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') addParticipant();
+                                            if (e.key === '-') e.preventDefault(); // Block minus key
                                         }}
                                     />
                                 </div>
@@ -248,6 +262,7 @@ export default function GastosCompartidosClient() {
                                         onClick={() => removeParticipant(p.id)}
                                         className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
                                         title="Eliminar"
+                                        aria-label={`Eliminar a ${p.name || 'participante'}`}
                                     >
                                         <Trash2 size={20} />
                                     </button>
@@ -273,7 +288,9 @@ export default function GastosCompartidosClient() {
                 <div className="flex justify-center">
                     <button
                         onClick={calculateExpenses}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-3 active:scale-95"
+                        disabled={participants.length < 2}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-3 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none"
+                        title={participants.length < 2 ? "Agrega al menos 2 personas" : "Calcular"}
                     >
                         <Calculator size={24} /> Calcular División
                     </button>
@@ -287,12 +304,12 @@ export default function GastosCompartidosClient() {
                             <div className="bg-primary/10 p-6 border-b border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
                                 <div>
                                     <p className="text-sm text-muted-foreground uppercase tracking-wider font-bold">Total Gastado</p>
-                                    <p className="text-3xl font-black text-primary">${formatCurrency(summary.total)}</p>
+                                    <p className="text-3xl font-black text-primary truncate max-w-[15rem]" title={`$${formatCurrency(summary.total)}`}>${formatCurrency(summary.total)}</p>
                                 </div>
                                 <div className="h-10 w-[1px] bg-border hidden sm:block"></div>
                                 <div>
                                     <p className="text-sm text-muted-foreground uppercase tracking-wider font-bold">Por Persona</p>
-                                    <p className="text-3xl font-black text-foreground">${formatCurrency(summary.average)}</p>
+                                    <p className="text-3xl font-black text-foreground truncate max-w-[15rem]" title={`$${formatCurrency(summary.average)}`}>${formatCurrency(summary.average)}</p>
                                 </div>
                             </div>
 
@@ -312,9 +329,9 @@ export default function GastosCompartidosClient() {
                                         {summary.transactions.map((t, idx) => (
                                             <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/50">
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm sm:text-base">
-                                                    <span className="font-bold text-red-500 dark:text-red-400">{t.from}</span>
+                                                    <span className="font-bold text-red-500 dark:text-red-400 truncate max-w-[8rem]" title={t.from}>{t.from}</span>
                                                     <span className="text-muted-foreground">le paga a</span>
-                                                    <span className="font-bold text-green-600 dark:text-green-400">{t.to}</span>
+                                                    <span className="font-bold text-green-600 dark:text-green-400 truncate max-w-[8rem]" title={t.to}>{t.to}</span>
                                                 </div>
                                                 <div className="font-mono font-bold text-lg">
                                                     ${formatCurrency(t.amount)}

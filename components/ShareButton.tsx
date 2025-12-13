@@ -47,7 +47,7 @@ export function ShareButton() {
 
                         <div className="flex flex-col gap-3">
                             <a
-                                href={`https://wa.me/?text=${encodeURIComponent('¡Mira esto! ' + window.location.href)}`}
+                                href={`https://wa.me/?text=${encodeURIComponent('🚀 ToolBox Digital: Utilidades simples para problemas complejos. Sin registros y 100% privado. Probálo acá: ' + window.location.href)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 p-3 bg-green-500/10 hover:bg-green-500/20 text-green-700 dark:text-green-400 rounded-xl transition-colors font-medium"

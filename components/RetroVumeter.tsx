@@ -13,29 +13,33 @@ const THEME_COLORS = [
 export const RetroVumeter = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    // Métricas visuales (0.0 a 1.0)
+    // Métricas
     const metrics = useRef({
-        mouse: 0,
+        dx: 0,
+        dy: 0,
         scroll: 0,
-        clicks: 0,
-        total: 0
+        clicks: 0
     });
 
     const lastPos = useRef({ x: 0, y: 0 });
     const lastScroll = useRef(0);
 
     useEffect(() => {
-        // 1. Captura de Eventos (Solo Mouse y Scroll)
         const handleMouseMove = (e: MouseEvent) => {
-            const dist = Math.hypot(e.clientX - lastPos.current.x, e.clientY - lastPos.current.y);
-            metrics.current.mouse = Math.min(metrics.current.mouse + (dist / 500), 1);
+            const dx = Math.abs(e.clientX - lastPos.current.x);
+            const dy = Math.abs(e.clientY - lastPos.current.y);
+
+            // Sensibilidad
+            metrics.current.dx = Math.min(metrics.current.dx + (dx / 50), 1);
+            metrics.current.dy = Math.min(metrics.current.dy + (dy / 50), 1);
+
             lastPos.current = { x: e.clientX, y: e.clientY };
         };
 
         const handleScroll = () => {
             const currentScroll = window.scrollY;
             const diff = Math.abs(currentScroll - lastScroll.current);
-            metrics.current.scroll = Math.min(metrics.current.scroll + (diff / 50), 1);
+            metrics.current.scroll = Math.min(metrics.current.scroll + (diff / 30), 1);
             lastScroll.current = currentScroll;
         };
 
@@ -45,7 +49,6 @@ export const RetroVumeter = () => {
         window.addEventListener('scroll', handleScroll);
         window.addEventListener('click', handleClick);
 
-        // 2. Loop de Renderizado
         let animationFrameId: number;
         let colorOffset = 0;
 
@@ -57,27 +60,31 @@ export const RetroVumeter = () => {
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Decaimiento
-            metrics.current.mouse *= 0.92;
-            metrics.current.scroll *= 0.90;
+            // Decaimiento Rápido (Snappy)
+            metrics.current.dx *= 0.80;
+            metrics.current.dy *= 0.80;
+            metrics.current.scroll *= 0.80;
             metrics.current.clicks *= 0.85;
 
-            // Promedio de actividad
-            metrics.current.total = (
-                metrics.current.mouse + metrics.current.scroll + metrics.current.clicks
-            ) / 3;
+            // Magnitud Vectorial (Velocidad General)
+            const magnitude = Math.min(Math.sqrt(
+                metrics.current.dx ** 2 +
+                metrics.current.dy ** 2 +
+                metrics.current.scroll ** 2
+            ), 1);
 
             const values = [
-                metrics.current.mouse,
-                metrics.current.scroll,
-                metrics.current.clicks,
-                metrics.current.total
+                metrics.current.dx,    // H
+                metrics.current.dy,    // V
+                metrics.current.scroll,// S
+                magnitude,             // Mag
+                metrics.current.clicks // Clk
             ];
 
             const barWidth = 8;
             const gap = 4;
             const maxHeight = canvas.height;
-            colorOffset += 0.2;
+            colorOffset += 0.5; // Más rápido el ciclo de color
 
             values.forEach((val, i) => {
                 const x = i * (barWidth + gap);
@@ -113,8 +120,8 @@ export const RetroVumeter = () => {
     return (
         <div className="fixed bottom-4 right-4 z-50 pointer-events-none hidden md:block opacity-60 hover:opacity-100 transition-opacity duration-500">
             <div className="bg-black/90 p-2 rounded border border-yellow-900/30 shadow-2xl backdrop-blur-sm">
-                {/* Ancho ajustado para 4 barras */}
-                <canvas ref={canvasRef} width={48} height={40} className="block" />
+                {/* Ancho ajustado para 5 barras: 5 * (8+4) - 4 = 56 approx -> 60 safe */}
+                <canvas ref={canvasRef} width={60} height={40} className="block" />
                 <div className="flex justify-between items-center mt-1 px-1">
                     <span className="text-[8px] text-yellow-700 font-mono tracking-widest">SYS.MON</span>
                     <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
