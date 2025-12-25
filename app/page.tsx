@@ -6,7 +6,7 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { VisitCounter } from '@/components/VisitCounter';
 import { ShareButton } from '@/components/ShareButton';
 import { FeedbackButton } from '@/components/FeedbackButton';
-import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode, Users, Dices } from 'lucide-react';
+import { FileSpreadsheet, FileCode, Lock, Type, Image as ImageIcon, FileText, Search, Grid, Tag, QrCode, Users, Dices, Video } from 'lucide-react';
 
 const tools = [
   {
@@ -80,6 +80,14 @@ const tools = [
     icon: <ImageIcon size={48} className="stroke-1" />,
     category: 'Imágenes',
     color: 'bg-cyan-100/50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'
+  },
+  {
+    title: 'Grabador de Pantalla',
+    description: 'Graba tu escritorio, una ventana o una pestaña del navegador sin instalar nada. Ideal para tutoriales o reportar errores.',
+    href: '/grabador-pantalla',
+    icon: <Video size={48} className="stroke-1" />,
+    category: 'Imágenes',
+    color: 'bg-rose-100/50 text-rose-800 dark:bg-rose-900/30 dark:text-rose-100'
   },
 ];
 
