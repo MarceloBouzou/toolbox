@@ -242,28 +242,7 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="relative mt-20 border-t border-border bg-gradient-to-b from-transparent to-muted/30">
-        <div className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4">
-            <div className="mb-6">
-              <p className="text-lg font-medium text-foreground/80 italic font-serif">
-                “First, solve the problem. Then, write the code.”
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">— John Johnson</p>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Hecho con <span className="text-red-500 animate-pulse">❤️</span> por <a href="https://www.linkedin.com/in/marcelobouzou/" target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:text-primary transition-colors hover:underline">Marcelo Bouzou</a>
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Arquitecto de Soluciones y Procesos de Negocio
-            </p>
-            <div className="flex justify-center gap-4 items-center">
-              <VisitCounter />
-              <FeedbackButton />
-            </div>
-          </div>
-        </div>
-      </footer>
+
 
       <style jsx>{`
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }

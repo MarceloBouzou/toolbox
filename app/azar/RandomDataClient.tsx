@@ -6,7 +6,7 @@ import { ShareButton } from '@/components/ShareButton';
 import { VisitCounter } from '@/components/VisitCounter';
 import { RefreshCw, Copy, Check, Dices, Hash, AlignLeft, Grid, Calculator } from 'lucide-react';
 
-type Tab = 'numbers' | 'uuids';
+type Tab = 'numbers' | 'uuids' | 'sequences';
 
 export default function RandomDataClient() {
     const [activeTab, setActiveTab] = useState<Tab>('numbers');
@@ -25,6 +25,15 @@ export default function RandomDataClient() {
     const [uuidQty, setUuidQty] = useState<string>('5');
     const [uuidUppercase, setUuidUppercase] = useState(false);
     const [generatedUuids, setGeneratedUuids] = useState<string[]>([]);
+
+    // --- STATE: SEQUENCES ---
+    const [seqStart, setSeqStart] = useState<string>('1');
+    const [seqEnd, setSeqEnd] = useState<string>('100');
+    const [seqStep, setSeqStep] = useState<string>('1');
+    const [seqPadding, setSeqPadding] = useState<string>('');
+    const [seqPrefix, setSeqPrefix] = useState<string>('');
+    const [seqSuffix, setSeqSuffix] = useState<string>('');
+    const [generatedSequence, setGeneratedSequence] = useState<string[]>([]);
 
     const [copied, setCopied] = useState(false);
 
@@ -145,6 +154,60 @@ export default function RandomDataClient() {
         setGeneratedUuids(res);
     };
 
+    // --- LOGIC: SEQUENCES ---
+    const generateSequence = () => {
+        const start = parseInt(seqStart);
+        const end = parseInt(seqEnd);
+        const step = parseInt(seqStep);
+        const padding = parseInt(seqPadding) || 0;
+
+        if (isNaN(start) || isNaN(end) || isNaN(step)) {
+            alert('Por favor, ingresa valores numéricos válidos.');
+            return;
+        }
+
+        if (step <= 0) {
+            alert('El paso debe ser mayor a 0.');
+            return;
+        }
+
+        // Safety calculation
+        // Avoid potential infinite loop logic issues by strictly checking math
+        // If start < end, step must be positive (already checked > 0)
+        // If start > end, we might want to allow negative steps? 
+        // User request says: "Lista de números secuenciales (ej: 10, 15, 20...)". Usually implies ascending.
+        // User requirements: "Paso (Step): (Cada cuánto salta, por defecto 1)".
+        // User requirements validation: "Validación 1: Si paso es menor o igual a 0, mostrar error."
+        // This implies the user expects an ascending sequence or handles direction via logic, but "step <= 0" error
+        // implies we only support positive steps.
+        // If start > end and step is positive, the loop won't run or we should error?
+        // Let's assume standard for loop logic: for (let i = start; i <= end; i += step).
+        // If start > end, this produces nothing. That is safe.
+        // But let's check count just in case end is huge.
+
+        if (start > end) {
+            alert('El valor de Inicio debe ser menor o igual al valor de Fin.');
+            return;
+        }
+
+        const count = Math.floor((end - start) / step) + 1;
+
+        if (count > 10000) {
+            alert('El límite de seguridad es de 10.000 líneas para no congelar el navegador.');
+            return;
+        }
+
+        const res: string[] = [];
+        for (let i = start; i <= end; i += step) {
+            let valStr = i.toString();
+            if (padding > 0) {
+                valStr = valStr.padStart(padding, '0');
+            }
+            res.push(`${seqPrefix}${valStr}${seqSuffix}`);
+        }
+        setGeneratedSequence(res);
+    };
+
     // --- UTILS ---
     const copyResult = (text: string) => {
         navigator.clipboard.writeText(text).then(() => {
@@ -192,6 +255,13 @@ export default function RandomDataClient() {
                                 }`}
                         >
                             UUIDs / GUIDs
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('sequences')}
+                            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'sequences' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                        >
+                            Secuencias
                         </button>
                     </div>
                 </div>
@@ -319,6 +389,88 @@ export default function RandomDataClient() {
                                     <div className="bg-muted/30 p-4 rounded-xl border border-border font-mono text-sm overflow-y-auto max-h-80">
                                         {generatedUuids.map((u, i) => (
                                             <div key={i} className="border-b border-border/50 py-1 last:border-0">{u}</div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* --- TAB: SEQUENCES --- */}
+                    {activeTab === 'sequences' && (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Parámetros</label>
+                                    <div className="flex gap-4">
+                                        <div className="flex-1">
+                                            <span className="text-xs text-muted-foreground">Inicio</span>
+                                            <input type="number" value={seqStart} onChange={e => setSeqStart(e.target.value)} className="w-full bg-muted/50 border border-border rounded p-2 mt-1" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className="text-xs text-muted-foreground">Fin</span>
+                                            <input type="number" value={seqEnd} onChange={e => setSeqEnd(e.target.value)} className="w-full bg-muted/50 border border-border rounded p-2 mt-1" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="text-xs text-muted-foreground">Paso (Step)</span>
+                                        <input type="number" value={seqStep} onChange={e => setSeqStep(e.target.value)} className="w-full bg-muted/50 border border-border rounded p-2 mt-1" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Formato</label>
+                                    <div>
+                                        <span className="text-xs text-muted-foreground">Relleno (Ceros a la izquierda)</span>
+                                        <input
+                                            type="number"
+                                            placeholder="Ej: 3 para 005"
+                                            value={seqPadding}
+                                            onChange={e => setSeqPadding(e.target.value)}
+                                            className="w-full bg-muted/50 border border-border rounded p-2 mt-1"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground mt-1">Dígitos totales. Si es 0 o vacío, no se aplica relleno.</p>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <div className="flex-1">
+                                            <span className="text-xs text-muted-foreground">Prefijo</span>
+                                            <input
+                                                type="text"
+                                                placeholder="Ej: ID-"
+                                                value={seqPrefix}
+                                                onChange={e => setSeqPrefix(e.target.value)}
+                                                className="w-full bg-muted/50 border border-border rounded p-2 mt-1"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className="text-xs text-muted-foreground">Sufijo</span>
+                                            <input
+                                                type="text"
+                                                placeholder="Ej: -A"
+                                                value={seqSuffix}
+                                                onChange={e => setSeqSuffix(e.target.value)}
+                                                className="w-full bg-muted/50 border border-border rounded p-2 mt-1"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onClick={generateSequence} className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                                <AlignLeft size={20} /> Generar Secuencia
+                            </button>
+
+                            {generatedSequence.length > 0 && (
+                                <div className="mt-6 animate-fade-in">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="font-bold">Resultados ({generatedSequence.length})</h3>
+                                        <button onClick={() => copyResult(generatedSequence.join('\n'))} className="text-xs text-primary hover:underline flex items-center gap-1">
+                                            {copied ? <Check size={14} /> : <Copy size={14} />} Copiar Todo
+                                        </button>
+                                    </div>
+                                    <div className="bg-muted/30 p-4 rounded-xl border border-border font-mono text-sm overflow-y-auto max-h-80">
+                                        {generatedSequence.map((item, i) => (
+                                            <div key={i} className="border-b border-border/50 py-1 last:border-0">{item}</div>
                                         ))}
                                     </div>
                                 </div>

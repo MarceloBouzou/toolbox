@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 
 import { Analytics } from "@vercel/analytics/react";
 import { RetroVumeter } from "@/components/RetroVumeter";
+import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: "ToolBox Digital | Utilidades Web Gratuitas y Privadas",
@@ -24,9 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className="antialiased bg-background text-foreground">
+      <body className="antialiased bg-background text-foreground flex flex-col min-h-screen">
         <ThemeProvider>
           {children}
+          <Footer />
           <RetroVumeter />
           <Analytics />
         </ThemeProvider>
