@@ -13,6 +13,7 @@ export default function ScreenRecorderPage() {
     const [error, setError] = useState<string | null>(null);
     const [audioEnabled, setAudioEnabled] = useState(false);
     const [countdown, setCountdown] = useState<number | null>(null);
+    const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -100,7 +101,12 @@ export default function ScreenRecorderPage() {
 
         recorder.onstop = () => {
             stopTimer();
-            downloadRecording();
+            if (chunksRef.current.length > 0) {
+                const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                setRecordedVideoUrl(url);
+            }
+            chunksRef.current = [];
         };
 
         recorder.start(1000); // Collect 1s chunks
@@ -123,19 +129,23 @@ export default function ScreenRecorderPage() {
     };
 
     const downloadRecording = () => {
-        if (chunksRef.current.length === 0) return;
-
-        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
+        if (!recordedVideoUrl) return;
         const a = document.createElement('a');
         document.body.appendChild(a);
         a.style.display = 'none';
-        a.href = url;
+        a.href = recordedVideoUrl;
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         a.download = `grabacion-pantalla-${timestamp}.webm`;
         a.click();
-        window.URL.revokeObjectURL(url);
-        chunksRef.current = []; // Reset chunks after download to avoid duplicates if something weird happens
+    };
+
+    const resetRecording = () => {
+        if (recordedVideoUrl) {
+            window.URL.revokeObjectURL(recordedVideoUrl);
+            setRecordedVideoUrl(null);
+        }
+        setError(null);
+        setTimer(0);
     };
 
     const startTimer = () => {
@@ -173,7 +183,7 @@ export default function ScreenRecorderPage() {
             <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
 
                 {/* Intro Section */}
-                {!isRecording && !stream && countdown === null && (
+                {!isRecording && !stream && countdown === null && !recordedVideoUrl && (
                     <div className="text-center space-y-4 animate-fade-in py-8">
                         <div className="w-20 h-20 bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3 transition-transform hover:rotate-6">
                             <Video size={40} strokeWidth={1.5} />
@@ -280,6 +290,42 @@ export default function ScreenRecorderPage() {
                         <p className="text-sm text-muted-foreground mt-6 text-center max-w-md">
                             Estamos grabando tu pantalla. Cuando finalices, el archivo se descargará automáticamente en formato <strong>.webm</strong>.
                         </p>
+                    </div>
+                )}
+
+                {/* Review Section */}
+                {recordedVideoUrl && !isRecording && (
+                    <div className="flex flex-col items-center w-full animate-fade-in-up space-y-6">
+                        <div className="text-center space-y-2">
+                            <h2 className="text-2xl font-bold">¡Grabación Finalizada!</h2>
+                            <p className="text-muted-foreground">Revisa tu video antes de descargarlo.</p>
+                        </div>
+
+                        <div className="w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-border/50 aspect-video relative">
+                            <video
+                                className="w-full h-full object-contain"
+                                src={recordedVideoUrl}
+                                controls
+                                autoPlay
+                            />
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-4 w-full">
+                            <button
+                                onClick={resetRecording}
+                                className="px-6 py-3 rounded-xl font-medium text-muted-foreground hover:bg-muted/50 transition-colors flex items-center gap-2"
+                            >
+                                <UserMinus size={20} />
+                                Descartar
+                            </button>
+                            <button
+                                onClick={downloadRecording}
+                                className="px-8 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2"
+                            >
+                                <Download size={20} />
+                                Descargar Grabación
+                            </button>
+                        </div>
                     </div>
                 )}
 
