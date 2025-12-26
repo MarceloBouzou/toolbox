@@ -12,6 +12,7 @@ export default function ScreenRecorderPage() {
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [audioEnabled, setAudioEnabled] = useState(false);
+    const [countdown, setCountdown] = useState<number | null>(null);
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -29,11 +30,24 @@ export default function ScreenRecorderPage() {
         };
     }, [stream]);
 
+    useEffect(() => {
+        if (countdown === null) return;
+
+        if (countdown > 0) {
+            const timer = setTimeout(() => setCountdown(c => c! - 1), 1000);
+            return () => clearTimeout(timer);
+        } else if (countdown === 0) {
+            const timer = setTimeout(() => {
+                startRecordingSession();
+                setCountdown(null);
+            }, 700);
+            return () => clearTimeout(timer);
+        }
+    }, [countdown]);
+
     const startRecording = async () => {
         setError(null);
         try {
-            // Options for getDisplayMedia to try to get audio if requested
-            // Note: System audio capture depends on OS/Browser support when sharing screen.
             const displayMediaOptions: DisplayMediaStreamOptions = {
                 video: true,
                 audio: audioEnabled
@@ -41,57 +55,57 @@ export default function ScreenRecorderPage() {
 
             const mediaStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
 
-            // If user cancels the browser picker, mediaStream might be null or throw error immediately, 
-            // but usually getDisplayMedia throws if cancelled.
-
             setStream(mediaStream);
 
             // Preview
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
-                videoRef.current.muted = true; // Mute preview to avoid feedback loop if audio is captured
+                videoRef.current.muted = true;
                 videoRef.current.play();
             }
-
-            // Setup MediaRecorder
-            // Prefer codecs if supported
-            const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-                ? 'video/webm;codecs=vp9'
-                : 'video/webm';
-
-            const recorder = new MediaRecorder(mediaStream, { mimeType });
-            mediaRecorderRef.current = recorder;
-            chunksRef.current = [];
-
-            recorder.ondataavailable = (event) => {
-                if (event.data && event.data.size > 0) {
-                    chunksRef.current.push(event.data);
-                }
-            };
-
-            recorder.onstop = () => {
-                stopTimer();
-                downloadRecording();
-                // Check if we need to clean up stream (if user pressed stop button in UI vs browser UI)
-                // Browser UI stop triggers track 'ended' event usually.
-            };
 
             // Detect if user stops sharing via browser UI controls
             mediaStream.getVideoTracks()[0].onended = () => {
                 stopRecording();
             };
 
-            recorder.start(1000); // Collect 1s chunks
-            setIsRecording(true);
-            startTimer();
+            // Start Countdown
+            setCountdown(3);
 
         } catch (err: any) {
             console.error("Error starting screen record:", err);
-            // Don't show error if user just cancelled selection
             if (err.name !== 'NotAllowedError') {
                 setError('No se pudo iniciar la grabación. Asegúrate de que tu navegador soporte esta función.');
             }
         }
+    };
+
+    const startRecordingSession = () => {
+        if (!stream) return;
+
+        // Setup MediaRecorder
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+            ? 'video/webm;codecs=vp9'
+            : 'video/webm';
+
+        const recorder = new MediaRecorder(stream, { mimeType });
+        mediaRecorderRef.current = recorder;
+        chunksRef.current = [];
+
+        recorder.ondataavailable = (event) => {
+            if (event.data && event.data.size > 0) {
+                chunksRef.current.push(event.data);
+            }
+        };
+
+        recorder.onstop = () => {
+            stopTimer();
+            downloadRecording();
+        };
+
+        recorder.start(1000); // Collect 1s chunks
+        setIsRecording(true);
+        startTimer();
     };
 
     const stopRecording = () => {
@@ -159,7 +173,7 @@ export default function ScreenRecorderPage() {
             <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
 
                 {/* Intro Section */}
-                {!isRecording && !stream && (
+                {!isRecording && !stream && countdown === null && (
                     <div className="text-center space-y-4 animate-fade-in py-8">
                         <div className="w-20 h-20 bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3 transition-transform hover:rotate-6">
                             <Video size={40} strokeWidth={1.5} />
@@ -202,8 +216,34 @@ export default function ScreenRecorderPage() {
                     </div>
                 )}
 
+                {/* Countdown Overlay */}
+                {countdown !== null && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
+                        <div className="flex flex-col items-center animate-bounce-short">
+                            <span className="text-[12rem] font-black text-rose-500 leading-none drop-shadow-2xl">
+                                {countdown === 0 ? '¡Acción!' : countdown}
+                            </span>
+                            {countdown === 0 && (
+                                <span className="text-3xl font-bold text-foreground mt-4 animate-pulse">
+                                    Grabando...
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <style jsx>{`
+                    @keyframes bounce-short {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                    }
+                    .animate-bounce-short {
+                        animation: bounce-short 0.5s ease-in-out infinite;
+                    }
+                `}</style>
+
                 {/* Recording State */}
-                {(isRecording || stream) && (
+                {(isRecording || (stream && countdown === null)) && (
                     <div className="flex flex-col items-center w-full animate-fade-in-up">
 
                         {/* Status Bar */}

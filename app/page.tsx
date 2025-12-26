@@ -26,6 +26,14 @@ const tools = [
     color: 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
   },
   {
+    title: 'Grabador de Pantalla',
+    description: 'Graba tu escritorio, una ventana o una pestaña del navegador sin instalar nada. Ideal para tutoriales o reportar errores.',
+    href: '/grabador-pantalla',
+    icon: <Video size={48} className="stroke-1" />,
+    category: 'Imágenes',
+    color: 'bg-rose-100/50 text-rose-800 dark:bg-rose-900/30 dark:text-rose-100'
+  },
+  {
     title: 'Unificador de Excel',
     description: '¿Cansado de copiar y pegar? Fusiona múltiples archivos o pestañas en una sola hoja maestra en segundos.',
     href: '/consolidar-excel',
@@ -80,14 +88,6 @@ const tools = [
     icon: <ImageIcon size={48} className="stroke-1" />,
     category: 'Imágenes',
     color: 'bg-cyan-100/50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'
-  },
-  {
-    title: 'Grabador de Pantalla',
-    description: 'Graba tu escritorio, una ventana o una pestaña del navegador sin instalar nada. Ideal para tutoriales o reportar errores.',
-    href: '/grabador-pantalla',
-    icon: <Video size={48} className="stroke-1" />,
-    category: 'Imágenes',
-    color: 'bg-rose-100/50 text-rose-800 dark:bg-rose-900/30 dark:text-rose-100'
   },
 ];
 
