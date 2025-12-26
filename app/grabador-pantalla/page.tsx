@@ -46,6 +46,18 @@ export default function ScreenRecorderPage() {
         }
     }, [countdown]);
 
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isRecording || recordedVideoUrl) {
+                e.preventDefault();
+                e.returnValue = ''; // Legacy support for some browsers
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isRecording, recordedVideoUrl]);
+
     const startRecording = async () => {
         setError(null);
         try {
@@ -257,20 +269,30 @@ export default function ScreenRecorderPage() {
                     <div className="flex flex-col items-center w-full animate-fade-in-up">
 
                         {/* Status Bar */}
-                        <div className="flex items-center gap-6 mb-6 px-6 py-3 bg-card border border-border rounded-full shadow-sm">
-                            <div className="flex items-center gap-2 text-red-500 font-bold animate-pulse">
-                                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                <span>REC</span>
+                        <div className="flex flex-col items-center gap-2 mb-6">
+                            <div className="flex items-center gap-6 px-6 py-3 bg-card border border-border rounded-full shadow-sm">
+                                <div className="flex items-center gap-2 text-red-500 font-bold animate-pulse">
+                                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                    <span>REC</span>
+                                </div>
+                                <div className={`text-2xl font-mono font-bold w-24 text-center ${timer >= 1800 ? 'text-red-500' :
+                                        timer >= 900 ? 'text-orange-500' : ''
+                                    }`}>
+                                    {formatTime(timer)}
+                                </div>
+                                <button
+                                    onClick={stopRecording}
+                                    className="px-4 py-1.5 bg-destructive text-destructive-foreground text-sm font-bold rounded-full hover:bg-destructive/90 transition-colors flex items-center gap-2"
+                                >
+                                    <StopCircle size={16} /> Detener
+                                </button>
                             </div>
-                            <div className="text-2xl font-mono font-bold w-24 text-center">
-                                {formatTime(timer)}
-                            </div>
-                            <button
-                                onClick={stopRecording}
-                                className="px-4 py-1.5 bg-destructive text-destructive-foreground text-sm font-bold rounded-full hover:bg-destructive/90 transition-colors flex items-center gap-2"
-                            >
-                                <StopCircle size={16} /> Detener
-                            </button>
+
+                            {timer >= 1800 && (
+                                <p className="text-xs text-red-500 font-bold animate-pulse">
+                                    ⚠️ Grabación larga. Recomendamos detener pronto para evitar saturar la memoria.
+                                </p>
+                            )}
                         </div>
 
                         {/* Video Preview */}
